@@ -11,14 +11,17 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  ECR_REPOSITORY_URL: 673156464838.dkr.ecr.us-west-2.amazonaws.com
-  ECR_REPOSITORY_NAME_SERVER: on-chain-voting-server
-  ECR_REPOSITORY_NAME_WEB: on-chain-voting-web
+  PROJECT_ID: o1labs-192920
+  GAR_LOCATION: asia-northeast3
+  GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+  REGISTRY_URL: asia-northeast3-docker.pkg.dev/o1labs-192920/gitops-images
+  ARTIFACT_NAME_SERVER: on-chain-voting-server
+  ARTIFACT_NAME_WEB: on-chain-voting-web
 
 jobs:
   publish-server-image:
     name: Server - Build and Push Docker Image
-    runs-on: minafoundation-default-runners
+    runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
@@ -29,31 +32,48 @@ jobs:
           cargo_toml_folder: ./server/
       - name: 🏷️ Generate Tag
         run: echo "TAG_SERVER=${{ steps.ocv-server.outputs.app_version }}" >> $GITHUB_ENV
-      - name: 🔑 ECR Login
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+      # Docker build setup
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-server-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-server-
+      - name: 🔑 Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2.1.5
+        with:
+          credentials_json: ${{ env.GCP_SA_KEY }}
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
       - name: 🔍 Check if Tag already exists
         id: checktag
         uses: tyriis/docker-image-tag-exists@main
         with:
-          registry: ${{ env.ECR_REPOSITORY_URL}}
-          repository: ${{ env.ECR_REPOSITORY_NAME_SERVER }}
+          registry: ${{ env.REGISTRY_URL}}
+          repository: ${{ env.ARTIFACT_NAME_SERVER }}
           tag: ${{ env.TAG_SERVER }}
-      - name: 🛠️ Build on-chain-voting server Docker Image
+      - name: 🛠️🚚 Build and push on-chain-voting server Docker Image
         if: steps.checktag.outputs.tag == 'not found'
-        working-directory: ./server/
-        run: DOCKER_BUILDKIT=1 docker build -t ${{ env.ECR_REPOSITORY_URL}}/${{ env.ECR_REPOSITORY_NAME_SERVER }}:${{ env.TAG_SERVER }} .
-      - name: 🚚 Push on-chain-voting server Docker Image
-        if: steps.checktag.outputs.tag == 'not found'
-        run: docker push ${{ env.ECR_REPOSITORY_URL}}/${{ env.ECR_REPOSITORY_NAME_SERVER }}:${{ env.TAG_SERVER }}
-      - name: 📝 Release Notes
+        uses: docker/build-push-action@v6
+        with:
+          context: ./server/
+          push: true
+          tags: ${{ env.REGISTRY_URL }}/${{ env.ARTIFACT_NAME_SERVER }}:${{ env.TAG_SERVER }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+      # Clean up cache
+      - name: Move cache
         run: |
-          echo "Generate Release Notes"
-          echo "TODO: Generate Release Notes (https://github.com/MinaProtocol/mf-devops-workflows/issues/23)"
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   publish-web-image:
     name: Web - Build and Push Docker Image
-    runs-on: minafoundation-default-runners
+    runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
@@ -64,24 +84,41 @@ jobs:
           path: web
       - name: 🏷️ Generate Tag
         run: echo "TAG_WEB=${{ steps.ocv-web.outputs.current-version }}" >> $GITHUB_ENV
-      - name: 🔑 ECR Login
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+      # Docker build setup
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-web-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-web-
+      - name: 🔑 Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2.1.5
+        with:
+          credentials_json: ${{ env.GCP_SA_KEY }}
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
       - name: 🔍 Check if Tag already exists
         id: checktag
         uses: tyriis/docker-image-tag-exists@main
         with:
-          registry: ${{ env.ECR_REPOSITORY_URL}}
-          repository: ${{ env.ECR_REPOSITORY_NAME_WEB }}
+          registry: ${{ env.REGISTRY_URL}}
+          repository: ${{ env.ARTIFACT_NAME_WEB }}
           tag: ${{ env.TAG_WEB }}
-      - name: 🛠️ Build on-chain-voting web Docker Image
+      - name: 🛠️🚚 Build and push on-chain-voting web Docker Image
         if: steps.checktag.outputs.tag == 'not found'
-        working-directory: ./web/
-        run: DOCKER_BUILDKIT=1 docker build -t ${{ env.ECR_REPOSITORY_URL}}/${{ env.ECR_REPOSITORY_NAME_WEB }}:${{ env.TAG_WEB }} .
-      - name: 🚚 Push on-chain-voting web Docker Image
-        if: steps.checktag.outputs.tag == 'not found'
-        run: docker push ${{ env.ECR_REPOSITORY_URL}}/${{ env.ECR_REPOSITORY_NAME_WEB }}:${{ env.TAG_WEB }}
-      - name: 📝 Release Notes
+        uses: docker/build-push-action@v6
+        with:
+          context: ./web/
+          push: true
+          tags: ${{ env.REGISTRY_URL }}/${{ env.ARTIFACT_NAME_WEB }}:${{ env.TAG_WEB }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+      # Clean up cache
+      - name: Move cache
         run: |
-          echo "Generate Release Notes"
-          echo "TODO: Generate Release Notes (https://github.com/MinaProtocol/mf-devops-workflows/issues/23)"
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
