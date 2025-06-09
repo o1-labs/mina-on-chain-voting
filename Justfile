@@ -99,26 +99,26 @@ image-build: image-build-web image-build-server
 # Build the container image for 'web'
 [macos]
 image-build-web: clean-web
-  docker build -t mina-ocv-web ./web
+  podman build --platform linux/amd64 -t mina-ocv-web ./web
 
 # Build the container image for 'web'
 [linux]
 image-build-web: clean-web
-  podman build -t mina-ocv-web ./web
+  podman build --platform linux/amd64 -t mina-ocv-web ./web
 
 # Build the container image for 'server'
 [macos]
 image-build-server: clean-server
-  docker build -t mina-ocv-server ./server
+  podman build --platform linux/amd64 -t mina-ocv-server ./server
 
 # Build the container image for 'server'
 [linux]
 image-build-server: clean-server
-  podman build -t mina-ocv-server ./server
+  podman build --platform linux/amd64 -t mina-ocv-server ./server
 
 [macos]
 destroy-db:
-  docker-compose --profile=db down
+  podman-compose --profile=db down
 
 [linux]
 destroy-db:
@@ -127,7 +127,7 @@ destroy-db:
 
 [macos]
 destroy-server:
-  docker-compose --profile=server-db down
+  podman-compose --profile=server-db down
 
 [linux]
 destroy-server:
@@ -136,7 +136,7 @@ destroy-server:
 
 [macos]
 destroy-web:
-  docker-compose --profile=all down
+  podman-compose --profile=all down
 
 [linux]
 destroy-web:
@@ -150,6 +150,7 @@ destroy-all: destroy-db destroy-server destroy-web
 [linux]
 launch-db: destroy-db
   podman run \
+    --platform linux/amd64 \
     --name db \
     -e POSTGRES_DB={{ DB_NAME }} \
     -e POSTGRES_USER={{ DB_USER }} \
@@ -170,13 +171,14 @@ launch-db: destroy-db
 
 [macos]
 launch-server: destroy-server image-build-server
-  docker-compose --profile=server-db up \
+  podman-compose --profile=server-db up \
     > {{ container_log_dir }}/server.out \
     2> {{ container_log_dir }}/server.err &
 
 [linux]
 launch-server: destroy-server image-build-server launch-db
   podman run \
+    --platform linux/amd64 \
     --name server \
     --env-file .env \
     --expose 8080 \
@@ -187,13 +189,14 @@ launch-server: destroy-server image-build-server launch-db
 
 [macos]
 launch-web: destroy-all image-build-server image-build-web
-  docker-compose --profile=all up \
+  podman-compose --profile=all up \
     > {{ container_log_dir }}/web.out \
     2> {{ container_log_dir }}/web.err &
 
 [linux]
 launch-web: destroy-all image-build-web launch-server
   podman run \
+    --platform linux/amd64 \
     --name web \
     --env-file .env \
     --expose 3000 \

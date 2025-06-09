@@ -37,6 +37,9 @@ source ~/.zshrc
 # Enter the project directory and allow direnv
 cd /Users/sanabriarusso/github/mina-on-chain-voting
 direnv allow
+
+# Note: If you encounter a rust-toolchain file error, ensure the ops/shell.nix 
+# file references the correct Rust version from rust-toolchain.toml
 ```
 
 #### Option 2: Manual Installation
@@ -404,6 +407,22 @@ open tarpaulin-report.html
 2. **Database connection**: Ensure PostgreSQL is running if testing database functionality
 3. **Container issues**: Run `just destroy-all` to clean up containers before retesting
 4. **Node version**: Ensure Node.js >= 18.0.0 and pnpm >= 8.5.1
+5. **Nix/direnv setup error**: If you see "No such file or directory" for `rust-toolchain`, ensure the `ops/shell.nix` file references the correct Rust version from `rust-toolchain.toml`
+
+### Nix Environment Issues
+
+If you encounter issues with `direnv allow`, check:
+
+```bash
+# Verify the rust-toolchain.toml file exists
+ls rust-toolchain.toml
+
+# Check if ops/shell.nix references the correct Rust version
+grep RUSTC_VERSION ops/shell.nix
+
+# Re-run direnv after any fixes
+direnv reload
+```
 
 ### Debug Mode
 
