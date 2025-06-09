@@ -1,3 +1,4 @@
 FROM ocv-server
 COPY --chown=mina:mina . .
 RUN cargo build --release
+
