@@ -1,9 +1,11 @@
 services:
   web:
-    container_name: web
+    container_name: mina-on-chain-voting_web
     build:
       context: ./web
       dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
     env_file: .env
     environment:
       - NEXT_PUBLIC_API_BASE_URL=http://server:8080
@@ -11,12 +13,13 @@ services:
     ports:
       - 3000:3000
   server:
-    container_name: server
-    image: ocv-server
+    container_name: mina-ocv-server
     build:
       context: ./server
-      # dockerfile: Dockerfile
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+      # dockerfile: Dockerfile.dev
     env_file: .env
     ports:
       - 8080:8080
