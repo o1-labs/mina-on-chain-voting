@@ -31,7 +31,12 @@ jobs:
         with:
           cargo_toml_folder: ./server/
       - name: 🏷️ Generate Tag
-        run: echo "TAG_SERVER=${{ steps.ocv-server.outputs.app_version }}" >> $GITHUB_ENV
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "TAG_SERVER=${{ steps.ocv-server.outputs.app_version }}-${{ github.sha }}" >> $GITHUB_ENV
+          else
+            echo "TAG_SERVER=${{ steps.ocv-server.outputs.app_version }}" >> $GITHUB_ENV
+          fi
       # Docker build setup
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -83,7 +88,12 @@ jobs:
         with:
           path: web
       - name: 🏷️ Generate Tag
-        run: echo "TAG_WEB=${{ steps.ocv-web.outputs.current-version }}" >> $GITHUB_ENV
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "TAG_WEB=${{ steps.ocv-web.outputs.current-version }}-${{ github.sha }}" >> $GITHUB_ENV
+          else
+            echo "TAG_WEB=${{ steps.ocv-web.outputs.current-version }}" >> $GITHUB_ENV
+          fi
       # Docker build setup
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
