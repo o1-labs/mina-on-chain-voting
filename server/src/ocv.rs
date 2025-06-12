@@ -6,7 +6,7 @@ use serde::Serialize;
 
 use crate::{
   Archive, ElectionResult, ElectionStats, Ledger, Network, Proposal, RankedVote, ReleaseStage, Vote, VoteRules,
-  VoteWithWeight, Wrapper, ranked_vote::run_simple_election, util::Caches, storage::StorageProvider,
+  VoteWithWeight, Wrapper, ranked_vote::run_simple_election, storage::StorageProvider, util::Caches,
 };
 
 #[derive(Clone)]

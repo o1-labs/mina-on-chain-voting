@@ -24,39 +24,37 @@ impl Ledger {
   async fn download(ocv: &Ocv, hash: &String, to: &PathBuf) -> Result<()> {
     let storage = ocv.storage_provider.as_ref();
     tracing::info!("Using storage provider: {}", storage.provider_name());
-    
+
     // List objects to find the one with matching hash
     tracing::info!("Looking for ledger with hash: {} in bucket: {}", hash, ocv.bucket_name);
     let objects = storage.list_objects(&ocv.bucket_name, None).await?;
     tracing::info!("Found {} objects total, searching for hash '{}'", objects.len(), hash);
-    
+
     // Enhanced debugging for hash matching
-    let matching_objects: Vec<&String> = objects
-      .iter()
-      .filter(|key| key.contains(hash))
-      .collect();
-    
+    let matching_objects: Vec<&String> = objects.iter().filter(|key| key.contains(hash)).collect();
+
     tracing::info!("Objects containing hash '{}': {:?}", hash, matching_objects);
-    
+
     if matching_objects.is_empty() {
       // Try partial hash matching for debugging
-      let partial_matches: Vec<&String> = objects
-        .iter()
-        .filter(|key| hash.len() >= 10 && key.contains(&hash[..10]))
-        .collect();
-      
-      tracing::warn!("No exact hash matches found. Partial matches (first 10 chars): {:?}", partial_matches.iter().take(5).collect::<Vec<_>>());
+      let partial_matches: Vec<&String> =
+        objects.iter().filter(|key| hash.len() >= 10 && key.contains(&hash[.. 10])).collect();
+
+      tracing::warn!(
+        "No exact hash matches found. Partial matches (first 10 chars): {:?}",
+        partial_matches.iter().take(5).collect::<Vec<_>>()
+      );
       tracing::warn!("Sample available objects: {:?}", objects.iter().take(10).collect::<Vec<_>>());
       return Err(anyhow!("Could not retrieve dump corresponding to {hash}"));
     }
-    
+
     let object_key = matching_objects[0].to_string();
-    
+
     tracing::info!("Found ledger object: {} for hash: {}", object_key, hash);
-    
+
     // Download object
     let bytes = storage.get_object(&ocv.bucket_name, &object_key).await?;
-    
+
     // Determine file type and process accordingly
     if object_key.ends_with(".json") {
       // Direct JSON file (GCS format)
@@ -69,12 +67,12 @@ impl Ledger {
       let tar_gz = GzDecoder::new(&bytes[..]);
       let mut archive = Archive::new(tar_gz);
       let mut found = false;
-      
+
       for entry in archive.entries()? {
         let mut entry = entry?;
         let path = entry.path()?.to_str().expect("Expecting a valid path").to_owned();
         tracing::debug!("Found archive entry: {}", path);
-        
+
         // Look for JSON file within the archive or use the same name logic
         if object_key.contains(&path) || path.ends_with(".json") {
           let mut buffer = Vec::new();
@@ -85,14 +83,14 @@ impl Ledger {
           break;
         }
       }
-      
+
       if !found {
         return Err(anyhow!("Could not find appropriate ledger file in archive: {}", object_key));
       }
     } else {
       return Err(anyhow!("Unsupported file format for ledger: {}", object_key));
     }
-    
+
     Ok(())
   }
 
