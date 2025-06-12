@@ -1,5 +1,4 @@
 mod caches;
-mod s3;
 mod shutdown_signal;
 mod wrapper;
 
