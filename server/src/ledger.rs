@@ -6,7 +6,7 @@ use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use tar::Archive;
 
-use crate::{Ocv, ProposalVersion, Vote, Wrapper, s3_client};
+use crate::{Ocv, ProposalVersion, Vote, Wrapper};
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Ledger(pub Vec<LedgerAccount>);
@@ -22,28 +22,32 @@ impl Ledger {
   }
 
   async fn download(ocv: &Ocv, hash: &String, to: &PathBuf) -> Result<()> {
-    let client = s3_client();
-    let s3_path = client
-      .list_objects_v2()
-      .bucket(&ocv.bucket_name)
-      .send()
-      .await?
-      .contents
-      .and_then(|objects| {
-        objects.into_iter().find(|object| object.key.as_ref().is_some_and(|key| key.contains(hash))).and_then(|x| x.key)
-      })
-      .ok_or(anyhow!("Could not retrieve dump corresponding to {hash}"))?;
-    let bytes =
-      client.get_object().bucket(&ocv.bucket_name).key(&s3_path).send().await?.body.collect().await?.into_bytes();
+    let storage = ocv.storage_provider.as_ref();
+    tracing::info!("Using storage provider: {}", storage.provider_name());
+    
+    // List objects to find the one with matching hash
+    let objects = storage.list_objects(&ocv.bucket_name, None).await?;
+    let object_key = objects
+      .into_iter()
+      .find(|key| key.contains(hash))
+      .ok_or_else(|| anyhow!("Could not retrieve dump corresponding to {hash}"))?;
+    
+    tracing::info!("Found ledger object: {} for hash: {}", object_key, hash);
+    
+    // Download object
+    let bytes = storage.get_object(&ocv.bucket_name, &object_key).await?;
+    
+    // Process tar.gz content
     let tar_gz = GzDecoder::new(&bytes[..]);
     let mut archive = Archive::new(tar_gz);
     for entry in archive.entries()? {
       let mut entry = entry?;
       let path = entry.path()?.to_str().expect("Expecting a valid path").to_owned();
-      if s3_path.contains(&path) {
+      if object_key.contains(&path) {
         let mut buffer = Vec::new();
         entry.read_to_end(&mut buffer)?;
         fs::write(to, buffer)?;
+        tracing::info!("Successfully extracted ledger to: {}", to.display());
         break;
       }
     }

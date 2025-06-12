@@ -6,7 +6,7 @@ use serde::Serialize;
 
 use crate::{
   Archive, ElectionResult, ElectionStats, Ledger, Network, Proposal, RankedVote, ReleaseStage, Vote, VoteRules,
-  VoteWithWeight, Wrapper, ranked_vote::run_simple_election, util::Caches,
+  VoteWithWeight, Wrapper, ranked_vote::run_simple_election, util::Caches, storage::StorageProvider,
 };
 
 #[derive(Clone)]
@@ -17,6 +17,7 @@ pub struct Ocv {
   pub release_stage: ReleaseStage,
   pub ledger_storage_path: PathBuf,
   pub bucket_name: String,
+  pub storage_provider: Arc<dyn StorageProvider + Send + Sync>,
   pub proposals: Vec<Proposal>,
 }
 

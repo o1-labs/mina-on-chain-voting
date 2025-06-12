@@ -68,11 +68,176 @@ pub fn s3_client() -> &'static Client {
 
 ---
 
+## AWS Download Testing (Pre-Migration Validation)
+
+Before proceeding with the GCS migration, we need to validate that the current AWS S3 ledger download functionality is working properly. This serves as a baseline test to ensure we can always fall back to the current implementation.
+
+### Current AWS Implementation Overview
+
+The system currently downloads staking ledger files from AWS S3 using:
+- **File**: `server/src/ledger.rs:24` - `download()` function
+- **S3 Client**: `server/src/util/s3.rs:8` - Singleton client hardcoded to `us-west-2`
+- **Trigger Points**: Ledger download is only triggered when:
+  - `/api/proposal/:id/results` is called AND the proposal has a `ledger_hash` field
+  - `/api/mef_proposal_consideration` is called WITH a `ledger_hash` query parameter
+- **Process**:
+  1. Lists objects in bucket using `list_objects_v2()`
+  2. Finds object key containing the requested hash
+  3. Downloads tar.gz file using `get_object()`
+  4. Extracts specific ledger JSON file from archive
+  5. Saves to local cache
+
+### Pre-Migration Test Plan
+
+#### Test Environment Setup
+
+1. **Environment Variables Required**:
+   ```bash
+   # Copy from your working .env file
+   NETWORK=mainnet  # or devnet/berkeley
+   RELEASE_STAGE=development
+   ARCHIVE_DATABASE_URL=postgresql://localhost:5432/your_db
+   BUCKET_NAME=673156464838-mina-staking-ledgers  # AWS bucket
+   LEDGER_STORAGE_PATH=/tmp/ledgers
+   ```
+
+2. **Docker Compose Setup**:
+   ```bash
+   # Ensure your .env file has the correct AWS bucket name
+   echo "BUCKET_NAME=673156464838-mina-staking-ledgers" >> .env
+   
+   # Start services
+   docker-compose up --build
+   ```
+
+#### Test Cases
+
+##### Test 1: Verify AWS S3 Connection
+**Objective**: Confirm the application can connect to AWS S3 and list bucket contents.
+
+**Steps**:
+1. Start the server: `docker-compose up server`
+2. Check server logs for any AWS connection errors
+3. Monitor for successful startup without S3-related failures
+
+**Expected Result**: Server starts without AWS/S3 connection errors.
+
+##### Test 2: Test Ledger Download Functionality
+**Objective**: Verify end-to-end ledger download from AWS S3.
+
+**Important**: Ledger download is only triggered by specific endpoints that require ledger data:
+- `/api/proposal/:id/results` - Only if the proposal has a `ledger_hash` field
+- `/api/mef_proposal_consideration/:round_id/:proposal_id/:start_time/:end_time?ledger_hash=HASH`
+
+**Steps**:
+1. Clear ledger cache: `rm -rf /tmp/ledgers/*` (or your configured path)
+2. Find a proposal with a ledger hash:
+   ```bash
+   # Get proposals and find one with a ledger_hash
+   curl -X GET "http://localhost:8080/api/proposals" | jq '.[] | select(.ledger_hash != null) | {id: .id, ledger_hash: .ledger_hash}'
+   ```
+3. Trigger ledger download using one of these methods:
+   
+   **Method A - Using proposal results endpoint:**
+   ```bash
+   # Replace ID with a proposal that has ledger_hash
+   PROPOSAL_ID=1
+   curl -X GET "http://localhost:8080/api/proposal/${PROPOSAL_ID}/results"
+   ```
+   
+   **Method B - Using MEF proposal consideration endpoint:**
+   ```bash
+   # Replace with actual values from your test environment
+   LEDGER_HASH="your_ledger_hash_here"
+   curl -X GET "http://localhost:8080/api/mef_proposal_consideration/1/1/1234567890/1234567900?ledger_hash=${LEDGER_HASH}"
+   ```
+
+4. Monitor server logs for:
+   - S3 `list_objects_v2` calls
+   - S3 `get_object` calls
+   - Successful tar.gz extraction
+   - JSON file writing to cache
+   - Log messages indicating ledger fetch operations
+
+**Expected Result**: 
+- Ledger file downloaded and cached locally
+- No AWS SDK errors in logs
+- Subsequent requests use cached version (no additional S3 calls)
+- Server logs show successful ledger operations, not just "get_proposals"
+
+##### Test 3: Cache Behavior Validation
+**Objective**: Confirm caching works and reduces S3 calls.
+
+**Steps**:
+1. Make the same API request from Test 2 twice (using the same proposal ID or MEF endpoint)
+2. First request should trigger S3 download and show ledger fetch operations in logs
+3. Second request should use cached file and show no additional S3 calls
+4. Check that cached ledger file exists in your configured `LEDGER_STORAGE_PATH` (default: `/tmp/ledgers/`)
+
+**Expected Result**: 
+- Only one set of S3 API calls in logs for the first request
+- Second request completes faster without S3 operations
+- Ledger JSON file exists in cache directory with filename `{ledger_hash}.json`
+
+##### Test 4: Error Handling Test
+**Objective**: Verify graceful handling of S3 errors.
+
+**Steps**:
+1. Temporarily set invalid bucket name: `BUCKET_NAME=invalid-bucket-name`
+2. Restart server and make API request
+3. Check error response and logs
+
+**Expected Result**: Clear error message, no application crash.
+
+#### Test Execution Checklist
+- [x] Environment variables configured correctly
+- [x] Docker containers start successfully  
+- [x] Archive database connection working (via port forwarding)
+- [x] Server responds to health checks
+- [x] **Important**: Found at least one proposal with `ledger_hash` field OR have valid MEF parameters
+- [x] Used correct API endpoint that triggers ledger download (not `/api/proposals`)
+- [x] Ledger download completes successfully
+- [x] Local cache directory contains downloaded files with correct filename format `{hash}.json`
+- [x] Logs show successful S3 operations (not just "get_proposals")
+- [x] Second request uses cache (no duplicate downloads)
+- [ ] Error scenarios handled gracefully
+
+#### Success Criteria
+
+✅ **Ready for Migration** if:
+- All test cases pass
+- No AWS/S3 related errors in logs
+- Downloaded ledger files are valid JSON
+- Cache mechanism working properly
+- Error handling works as expected
+
+❌ **Not Ready** if:
+- Any S3 connection failures
+- Download errors or corrupted files
+- Missing error handling
+- Cache not functioning
+
+### Post-Test Documentation
+
+After successful testing, document:
+1. **Working Configuration**: Copy of `.env` file that works
+2. **Test Results**: Success/failure of each test case
+3. **Performance Metrics**: Download times and file sizes
+4. **Log Samples**: Key success/error log entries showing actual ledger operations
+5. **API Endpoints Used**: Which specific endpoints triggered ledger downloads
+6. **Proposal Data**: Which proposals had `ledger_hash` fields available for testing
+
+This baseline test ensures we have a working reference implementation before introducing GCS complexity.
+
+**Note**: If you only see "get_proposals" in your server logs without any S3 operations, you're using the wrong endpoint - the `/api/proposals` endpoint does not trigger ledger downloads.
+
+---
+
 ## Migration Strategy
 
-### Phase 1: Abstraction Layer Creation
+### Phase 1: Abstraction Layer Creation ✅ **COMPLETED**
 
-#### 1.1 Create Storage Trait
+#### 1.1 Create Storage Trait ✅ **COMPLETED**
 **Objective**: Abstract storage operations behind a common interface
 
 **New File**: `/server/src/storage/mod.rs`
@@ -88,25 +253,25 @@ pub trait StorageProvider {
 }
 ```
 
-#### 1.2 Implement AWS S3 Provider
+#### 1.2 Implement AWS S3 Provider ✅ **COMPLETED**
 **New File**: `/server/src/storage/aws_s3.rs`
 
 Refactor existing S3 code into trait implementation:
-- Move current S3 logic into `AwsS3Provider` struct
-- Implement `StorageProvider` trait
-- Maintain backward compatibility
+- ✅ Move current S3 logic into `AwsS3Provider` struct
+- ✅ Implement `StorageProvider` trait
+- ✅ Maintain backward compatibility
 
-#### 1.3 Implement GCS Provider
+#### 1.3 Implement GCS Provider ✅ **COMPLETED**
 **New File**: `/server/src/storage/gcs.rs`
 
 Create Google Cloud Storage implementation:
-- Use `google-cloud-storage` crate
-- Implement same interface as AWS provider
-- Handle GCS-specific authentication
+- ✅ Use `google-cloud-storage` crate
+- ✅ Implement same interface as AWS provider
+- ✅ Handle GCS-specific authentication
 
-### Phase 2: Configuration Enhancement
+### Phase 2: Configuration Enhancement ✅ **COMPLETED**
 
-#### 2.1 Update Configuration Structure
+#### 2.1 Update Configuration Structure ✅ **COMPLETED**
 **File**: `/server/src/config.rs`
 
 Add new configuration options:
@@ -133,7 +298,7 @@ pub struct OcvConfig {
 }
 ```
 
-#### 2.2 Update Environment Configuration
+#### 2.2 Update Environment Configuration ✅ **COMPLETED**
 **File**: `.env.example`
 
 Add new environment variables:
@@ -152,9 +317,9 @@ BUCKET_NAME=673156464838-mina-staking-ledgers
 # BUCKET_NAME=your-gcs-bucket-name
 ```
 
-### Phase 3: Dependency Management
+### Phase 3: Dependency Management ✅ **COMPLETED**
 
-#### 3.1 Update Cargo.toml
+#### 3.1 Update Cargo.toml ✅ **COMPLETED**
 **File**: `/server/Cargo.toml`
 
 Add GCS dependencies while keeping AWS:
@@ -171,9 +336,9 @@ async-trait = "0.1.80"
 # ...rest of dependencies...
 ```
 
-### Phase 4: Refactor Core Logic
+### Phase 4: Refactor Core Logic ✅ **COMPLETED**
 
-#### 4.1 Update Ledger Module
+#### 4.1 Update Ledger Module ✅ **COMPLETED**
 **File**: `/server/src/ledger.rs`
 
 Replace direct S3 calls with storage abstraction:
@@ -200,7 +365,7 @@ impl Ledger {
 }
 ```
 
-#### 4.2 Update OCV Structure
+#### 4.2 Update OCV Structure ✅ **COMPLETED**
 **File**: `/server/src/ocv.rs`
 
 Add storage provider to OCV struct:
@@ -212,9 +377,9 @@ pub struct Ocv {
 }
 ```
 
-### Phase 5: Provider Factory
+### Phase 5: Provider Factory ✅ **COMPLETED**
 
-#### 5.1 Create Storage Factory
+#### 5.1 Create Storage Factory ✅ **COMPLETED**
 **New File**: `/server/src/storage/factory.rs`
 
 ```rust
