@@ -1,5 +1,47 @@
 # Changelog
 
+## [o1Labs-infra] - 2025-Jun-12
+
+### Added
+
+- **Google Cloud Storage (GCS) Support**: Complete integration allowing the application to use GCS buckets as an alternative to AWS S3 for ledger data storage
+  - New storage provider abstraction with pluggable backend support (AWS S3 and Google Cloud Storage)
+  - Anonymous access support for public GCS buckets - no credentials required for public bucket access
+  - Smart authentication fallback: automatically tries authenticated access first, gracefully falls back to anonymous HTTP access for public buckets
+  - Full pagination support for GCS buckets with 10,000+ objects across multiple pages
+  - Multi-format ledger file support: handles both compressed archives (.tar.gz from AWS) and direct JSON files (.json from GCS)
+  - Enhanced debugging and logging for storage operations with detailed object listing and hash matching
+  - New environment variables for storage provider configuration:
+    - `STORAGE_PROVIDER` (aws|gcs) - Choose between AWS S3 and Google Cloud Storage
+    - `GCS_PROJECT_ID` - Google Cloud project ID for GCS authentication
+    - `GCS_SERVICE_ACCOUNT_KEY_PATH` - Optional service account key file path
+    - `AWS_REGION` - AWS region for S3 operations (defaults to us-west-2)
+
+### Improvements or Migrations
+
+- **Storage Architecture Refactor**: Migrated from direct AWS S3 client usage to a clean provider pattern that supports multiple cloud storage backends
+- **Enhanced Error Handling**: Improved error messages with provider-specific context and clear guidance for configuration issues
+- **Performance Optimization**: Efficient pagination implementation that prevents memory issues when handling large bucket inventories (4,250+ objects tested)
+- **Hybrid Client Architecture**: Implemented intelligent client selection between authenticated SDK access and anonymous HTTP access based on credential availability
+- **File Format Detection**: Smart format detection automatically handles different ledger file formats without user intervention
+- **Configuration Flexibility**: Simplified switching between storage providers via environment variable changes
+- **Removed deprecated S3 utility**: Eliminated `/server/src/util/s3.rs` in favor of the new provider pattern
+- **Updated dependencies**: Added Google Cloud Storage SDK (`google-cloud-storage`, `google-cloud-auth`) and URL encoding support
+
+### Backward Compatibility & Migration Notes
+
+- **✅ Zero Breaking Changes**: Existing AWS S3 configurations continue to work without any modifications
+- **✅ Environment Variable Compatibility**: All existing AWS S3 (`STORAGE_PROVIDER=aws`) environment variables (`BUCKET_NAME`, etc.) remain functional
+- **✅ API Compatibility**: No changes to REST API endpoints or responses
+- **✅ Docker Compatibility**: No Dockerfile changes required - new dependencies compile into existing binary
+- **Migration Path**: To switch to GCS, simply update environment variables:
+  ```
+  STORAGE_PROVIDER=gcs
+  GCS_PROJECT_ID=your-project-id
+  BUCKET_NAME=your-gcs-bucket-name
+  ```
+
+
 ## [Post-MIP] as of 2023-Sep-26
 
 ### Added
