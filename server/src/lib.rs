@@ -7,6 +7,7 @@ mod ranked_vote;
 mod ranked_vote_builder;
 mod ranked_vote_config;
 mod serve;
+mod storage;
 mod util;
 mod vote;
 
@@ -19,5 +20,6 @@ pub use ranked_vote::*;
 pub use ranked_vote_builder::*;
 pub use ranked_vote_config::*;
 pub use serve::*;
+pub use storage::*;
 pub use util::*;
 pub use vote::*;

@@ -29,7 +29,7 @@ let
 
 in pkgs.mkShell {
 
-  RUSTC_VERSION = pkgs.lib.readFile ../rust-toolchain;
+  RUSTC_VERSION = "nightly-2024-09-22";
 
   # See https://github.com/rust-lang/rust-bindgen#environment-variables
 

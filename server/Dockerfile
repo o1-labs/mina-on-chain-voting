@@ -64,6 +64,7 @@ RUN apt-get update && \
     postgresql-client \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
 COPY --from=builder /app/target/release/mina_ocv /app/mina_ocv
 # start the server
 CMD ["./mina_ocv"]
