@@ -36,6 +36,7 @@ impl Ocv {
     }
 
     let transactions = self.archive.fetch_transactions(proposal.start_time, proposal.end_time)?;
+    tracing::info!("Fetched {} transactions for proposal {}", transactions.len(), id);
 
     let chain_tip = self.archive.fetch_chain_tip()?;
 
@@ -147,6 +148,7 @@ impl Ocv {
         let transactions = self.archive.fetch_transactions(start_time, end_time)?;
 
         let chain_tip = self.archive.fetch_chain_tip()?;
+        tracing::info!("Using ledger hash: {}", hash);
 
         let ledger = if let Some(cached_ledger) = self.caches.ledger.get(&hash).await {
           Ledger(cached_ledger.to_vec())

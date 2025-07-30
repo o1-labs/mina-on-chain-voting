@@ -10,8 +10,8 @@ use crate::{Archive, Caches, Ocv, Proposal, ProposalsManifest, storage::create_s
 
 #[derive(Clone, Args)]
 pub struct OcvConfig {
-  /// The mina network to connect to.
-  #[clap(long, env)]
+  /// The Mina network to connect to.
+  #[clap(long, env = "NETWORK")]
   pub network: Network,
   /// The environment stage.
   #[clap(long, env = "RELEASE_STAGE")]
@@ -29,7 +29,7 @@ pub struct OcvConfig {
   #[clap(long, env, default_value = "/tmp/ledgers")]
   pub ledger_storage_path: String,
   /// Storage provider type: "aws" or "gcs"
-  #[clap(long, env = "STORAGE_PROVIDER", default_value = "aws")]
+  #[clap(long, env = "STORAGE_PROVIDER", default_value = "gcs")]
   pub storage_provider: String,
   /// GCS project ID (required when using GCS)
   #[clap(long, env = "GCS_PROJECT_ID")]
@@ -59,13 +59,18 @@ impl OcvConfig {
   }
 
   async fn load_proposals(&self) -> Result<Vec<Proposal>> {
-    let manifest_bytes = match &self.maybe_proposals_url {
-      Some(url) => {
-        let url = if url.is_empty() { &PROPOSALS_MANIFEST_GITHUB_URL.to_string() } else { url };
+    let manifest_bytes = match self.release_stage {
+      ReleaseStage::Development | ReleaseStage::Staging => {
+        // Use embedded proposals.json for non-production env
+        Bytes::from_static(include_bytes!("../proposals/proposals.json"))
+      }
+      _ => {
+        // Fetch from github for all other networks
+        let url = self.maybe_proposals_url.as_deref().unwrap_or(PROPOSALS_MANIFEST_GITHUB_URL);
         reqwest::Client::new().get(url).send().await?.bytes().await?
       }
-      None => Bytes::from_static(include_bytes!("../proposals/proposals.json")),
     };
+
     let manifest: ProposalsManifest = serde_json::from_slice(manifest_bytes.as_ref())?;
     let filtered_by_network =
       manifest.proposals.into_iter().filter(|proposal| proposal.network == self.network).collect();
@@ -74,7 +79,7 @@ impl OcvConfig {
 }
 
 static PROPOSALS_MANIFEST_GITHUB_URL: &str =
-  "https://raw.githubusercontent.com/MinaFoundation/mina-on-chain-voting/main/server/proposals/proposals.json";
+  "https://raw.githubusercontent.com/o1-labs/mina-on-chain-voting/main/server/proposals/proposals.json";
 
 #[derive(Clone, Copy, Parser, ValueEnum, Debug, Display, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -83,8 +88,6 @@ pub enum Network {
   Mainnet,
   #[display("devnet")]
   Devnet,
-  #[display("berkeley")]
-  Berkeley,
 }
 
 #[derive(Clone, Copy, Parser, ValueEnum, Debug, Display, Serialize, Deserialize, PartialEq)]

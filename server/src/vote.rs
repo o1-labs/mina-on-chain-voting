@@ -84,7 +84,7 @@ impl Vote {
 
   pub fn match_decoded_memo(&mut self, key: &str) -> Option<String> {
     if let Ok(decoded) = self.decode_memo() {
-      if decoded.to_lowercase() == key.to_lowercase() || decoded.to_lowercase() == format!("no {}", key.to_lowercase())
+      if decoded == key || decoded == format!("no {}", key)
       {
         return Some(decoded);
       }
@@ -182,6 +182,7 @@ impl Wrapper<Vec<Vote>> {
   }
 
   pub fn into_weighted(self, proposal: &Proposal, ledger: &Ledger, tip: i64) -> Wrapper<Vec<VoteWithWeight>> {
+    tracing::info!("Processing votes for proposal: {}", proposal.key);
     let votes = self.process(&proposal.key, tip);
 
     let votes_with_stake: Vec<VoteWithWeight> = votes
