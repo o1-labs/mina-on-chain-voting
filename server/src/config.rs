@@ -6,7 +6,7 @@ use clap::{Args, Parser, ValueEnum};
 use derive_more::Display;
 use serde::{Deserialize, Serialize};
 
-use crate::{Archive, Caches, Ocv, Proposal, ProposalsManifest, storage::create_storage_provider};
+use crate::{Archive, Caches, Ocv, Proposal, ProposalsManifest};
 
 #[derive(Clone, Args)]
 pub struct OcvConfig {
@@ -28,24 +28,11 @@ pub struct OcvConfig {
   /// Path to store the ledgers
   #[clap(long, env, default_value = "/tmp/ledgers")]
   pub ledger_storage_path: String,
-  /// Storage provider type: "aws" or "gcs"
-  #[clap(long, env = "STORAGE_PROVIDER", default_value = "aws")]
-  pub storage_provider: String,
-  /// GCS project ID (required when using GCS)
-  #[clap(long, env = "GCS_PROJECT_ID")]
-  pub gcs_project_id: Option<String>,
-  /// GCS service account key path (optional)
-  #[clap(long, env = "GCS_SERVICE_ACCOUNT_KEY_PATH")]
-  pub gcs_service_account_key_path: Option<String>,
-  /// AWS region (for AWS S3)
-  #[clap(long, env = "AWS_REGION", default_value = "us-west-2")]
-  pub aws_region: String,
 }
 
 impl OcvConfig {
   pub async fn to_ocv(&self) -> Result<Ocv> {
     fs::create_dir_all(&self.ledger_storage_path)?;
-    let storage_provider = create_storage_provider(self).await?;
     Ok(Ocv {
       caches: Caches::build(),
       archive: Archive::new(&self.archive_database_url),
@@ -53,7 +40,6 @@ impl OcvConfig {
       release_stage: self.release_stage,
       ledger_storage_path: PathBuf::from_str(&self.ledger_storage_path)?,
       bucket_name: self.bucket_name.clone(),
-      storage_provider,
       proposals: self.load_proposals().await?,
     })
   }

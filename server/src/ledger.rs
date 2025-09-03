@@ -6,7 +6,7 @@ use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use tar::Archive;
 
-use crate::{Ocv, ProposalVersion, Vote, Wrapper};
+use crate::{Ocv, ProposalVersion, Vote, Wrapper, s3_client};
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Ledger(pub Vec<LedgerAccount>);
@@ -22,75 +22,31 @@ impl Ledger {
   }
 
   async fn download(ocv: &Ocv, hash: &String, to: &PathBuf) -> Result<()> {
-    let storage = ocv.storage_provider.as_ref();
-    tracing::info!("Using storage provider: {}", storage.provider_name());
-
-    // List objects to find the one with matching hash
-    tracing::info!("Looking for ledger with hash: {} in bucket: {}", hash, ocv.bucket_name);
-    let objects = storage.list_objects(&ocv.bucket_name, None).await?;
-    tracing::info!("Found {} objects total, searching for hash '{}'", objects.len(), hash);
-
-    // Enhanced debugging for hash matching
-    let matching_objects: Vec<&String> = objects.iter().filter(|key| key.contains(hash)).collect();
-
-    tracing::info!("Objects containing hash '{}': {:?}", hash, matching_objects);
-
-    if matching_objects.is_empty() {
-      // Try partial hash matching for debugging
-      let partial_matches: Vec<&String> =
-        objects.iter().filter(|key| hash.len() >= 10 && key.contains(&hash[.. 10])).collect();
-
-      tracing::warn!(
-        "No exact hash matches found. Partial matches (first 10 chars): {:?}",
-        partial_matches.iter().take(5).collect::<Vec<_>>()
-      );
-      tracing::warn!("Sample available objects: {:?}", objects.iter().take(10).collect::<Vec<_>>());
-      return Err(anyhow!("Could not retrieve dump corresponding to {hash}"));
-    }
-
-    let object_key = matching_objects[0].to_string();
-
-    tracing::info!("Found ledger object: {} for hash: {}", object_key, hash);
-
-    // Download object
-    let bytes = storage.get_object(&ocv.bucket_name, &object_key).await?;
-
-    // Determine file type and process accordingly
-    if object_key.ends_with(".json") {
-      // Direct JSON file (GCS format)
-      tracing::info!("Processing direct JSON file: {}", object_key);
-      fs::write(to, &bytes)?;
-      tracing::info!("Successfully saved JSON ledger to: {}", to.display());
-    } else if object_key.ends_with(".tar.gz") || object_key.ends_with(".txt") {
-      // Compressed tar.gz file (AWS format) or legacy txt files
-      tracing::info!("Processing compressed tar.gz file: {}", object_key);
-      let tar_gz = GzDecoder::new(&bytes[..]);
-      let mut archive = Archive::new(tar_gz);
-      let mut found = false;
-
-      for entry in archive.entries()? {
-        let mut entry = entry?;
-        let path = entry.path()?.to_str().expect("Expecting a valid path").to_owned();
-        tracing::debug!("Found archive entry: {}", path);
-
-        // Look for JSON file within the archive or use the same name logic
-        if object_key.contains(&path) || path.ends_with(".json") {
-          let mut buffer = Vec::new();
-          entry.read_to_end(&mut buffer)?;
-          fs::write(to, buffer)?;
-          tracing::info!("Successfully extracted ledger from archive to: {}", to.display());
-          found = true;
-          break;
-        }
+    let client = s3_client();
+    let s3_path = client
+      .list_objects_v2()
+      .bucket(&ocv.bucket_name)
+      .send()
+      .await?
+      .contents
+      .and_then(|objects| {
+        objects.into_iter().find(|object| object.key.as_ref().is_some_and(|key| key.contains(hash))).and_then(|x| x.key)
+      })
+      .ok_or(anyhow!("Could not retrieve dump corresponding to {hash}"))?;
+    let bytes =
+      client.get_object().bucket(&ocv.bucket_name).key(&s3_path).send().await?.body.collect().await?.into_bytes();
+    let tar_gz = GzDecoder::new(&bytes[..]);
+    let mut archive = Archive::new(tar_gz);
+    for entry in archive.entries()? {
+      let mut entry = entry?;
+      let path = entry.path()?.to_str().expect("Expecting a valid path").to_owned();
+      if s3_path.contains(&path) {
+        let mut buffer = Vec::new();
+        entry.read_to_end(&mut buffer)?;
+        fs::write(to, buffer)?;
+        break;
       }
-
-      if !found {
-        return Err(anyhow!("Could not find appropriate ledger file in archive: {}", object_key));
-      }
-    } else {
-      return Err(anyhow!("Unsupported file format for ledger: {}", object_key));
     }
-
     Ok(())
   }
 
