@@ -1,5 +1,46 @@
 # Changelog
 
+## [Storage Backend Support] - 2024-Sep-04
+
+### Added
+
+- **Google Cloud Storage (GCS) Backend**: Complete GCS integration as alternative to AWS S3
+  - Storage provider abstraction with pluggable backends (AWS S3, GCS)
+  - Anonymous access for public GCS buckets (no credentials required)
+  - Authentication fallback: tries authenticated access first, falls back to anonymous HTTP
+  - Configuration via `STORAGE_PROVIDER=gcs` and `GCS_PROJECT_ID` environment variables
+  - Support for direct JSON files (.json) alongside compressed archives (.tar.gz)
+
+- **Comprehensive Unit Testing**: Full test suite for storage operations
+  - Mock HTTP responses for GCS API testing
+  - Authentication scenarios and error handling (404, 401, 403)  
+  - Bucket validation warnings and pagination testing
+  - Storage factory configuration validation
+
+- **Enhanced Error Handling**: Improved debugging and error messages
+  - Provider-specific error context and configuration guidance
+  - Bucket name validation with helpful warnings
+  - Enhanced logging for storage operations and hash matching
+
+### Improvements
+
+- **Storage Architecture Refactor**: Clean provider pattern supporting multiple backends
+- **Performance**: Efficient pagination for large buckets (4,250+ objects tested)
+- **Configuration**: Simplified provider switching via environment variables
+- **Dependencies**: Added GCS SDK support (`google-cloud-storage`, `google-cloud-auth`)
+
+### Backward Compatibility
+
+- **✅ Zero Breaking Changes**: All existing AWS S3 configurations work unchanged
+- **✅ Environment Variables**: AWS S3 environment variables remain functional  
+- **✅ API Compatibility**: No REST API changes
+- **✅ Migration Path**: Switch providers by updating environment variables only
+
+### Current Limitations
+
+- **Service Account Key File Loading**: `GCS_SERVICE_ACCOUNT_KEY_PATH` field exists but not implemented
+- **Private GCS Buckets**: Limited to Google ADC environments only
+
 ## [o1Labs-infra] - 2025-Jun-12
 
 ### Added
