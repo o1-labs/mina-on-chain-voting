@@ -78,9 +78,12 @@ impl StorageProvider for GcsProvider {
       tracing::warn!("Empty bucket name provided to GCS provider - this will likely fail");
       return Err(anyhow!("GCS bucket name cannot be empty. Please check your BUCKET_NAME environment variable."));
     }
-    
+
     if bucket.contains(' ') || bucket.contains('_') || bucket.chars().any(|c| c.is_uppercase()) {
-      tracing::warn!("Invalid GCS bucket name format: '{}'. Bucket names must be lowercase, use hyphens instead of underscores, and contain no spaces.", bucket);
+      tracing::warn!(
+        "Invalid GCS bucket name format: '{}'. Bucket names must be lowercase, use hyphens instead of underscores, and contain no spaces.",
+        bucket
+      );
     }
 
     match &self.client {
@@ -147,8 +150,15 @@ impl StorageProvider for GcsProvider {
               ));
             }
             if response.status() == 404 {
-              tracing::warn!("GCS bucket '{}' does not exist. Please verify the bucket name and ensure it exists in project '{}'.", bucket, self.project_id);
-              return Err(anyhow!("GCS bucket '{}' not found. Please check the bucket name and project configuration.", bucket));
+              tracing::warn!(
+                "GCS bucket '{}' does not exist. Please verify the bucket name and ensure it exists in project '{}'.",
+                bucket,
+                self.project_id
+              );
+              return Err(anyhow!(
+                "GCS bucket '{}' not found. Please check the bucket name and project configuration.",
+                bucket
+              ));
             }
             return Err(anyhow!("Failed to access GCS bucket '{}': HTTP {}", bucket, response.status()));
           }
@@ -199,7 +209,7 @@ impl StorageProvider for GcsProvider {
       tracing::warn!("Empty bucket name provided to GCS provider for object '{}' - this will likely fail", key);
       return Err(anyhow!("GCS bucket name cannot be empty. Please check your BUCKET_NAME environment variable."));
     }
-    
+
     match &self.client {
       GcsClient::Authenticated(client) => {
         let request = GetObjectRequest { bucket: bucket.to_string(), object: key.to_string(), ..Default::default() };
@@ -259,9 +269,10 @@ impl StorageProvider for GcsProvider {
 
 #[cfg(test)]
 mod tests {
-  use super::*;
   use mockito::{Mock, Server};
   use tokio_test;
+
+  use super::*;
 
   // Test data constants
   const TEST_PROJECT_ID: &str = "test-project-123";
@@ -279,13 +290,15 @@ mod tests {
           "name": "staking-epoch-46-jxQXzUkst2L9Ma9g9YQ3kfpgB5v5Znr1vrYb1mupakc5y7T89H8-def456-2023.json"
         }
       ]
-    }).to_string()
+    })
+    .to_string()
   }
 
   fn mock_gcs_empty_response() -> String {
     serde_json::json!({
       "items": []
-    }).to_string()
+    })
+    .to_string()
   }
 
   fn mock_ledger_data() -> String {
@@ -295,7 +308,8 @@ mod tests {
         "balance": "1000000000",
         "delegate": "B62qmwpPKe5w3JL9m54Z6iCpWZjtxfBUgKGKVTGmpq5xRRQkMdCQ7xX"
       }
-    ]).to_string()
+    ])
+    .to_string()
   }
 
   async fn create_test_provider_with_mock_server(server: &Server) -> GcsProvider {
@@ -308,7 +322,7 @@ mod tests {
   async fn test_gcs_provider_creation_success() {
     let provider = GcsProvider::new(TEST_PROJECT_ID, None).await;
     assert!(provider.is_ok());
-    
+
     let provider = provider.unwrap();
     assert_eq!(provider.provider_name(), "Google Cloud Storage");
     assert_eq!(provider.project_id, TEST_PROJECT_ID);
@@ -323,36 +337,38 @@ mod tests {
   #[tokio::test]
   async fn test_list_objects_success() {
     let mut server = Server::new_async().await;
-    
-    let mock = server.mock("GET", format!("/storage/v1/b/{}/o", TEST_BUCKET).as_str())
+
+    let mock = server
+      .mock("GET", format!("/storage/v1/b/{}/o", TEST_BUCKET).as_str())
       .with_status(200)
       .with_header("content-type", "application/json")
       .with_body(&mock_gcs_list_response())
       .create_async()
       .await;
 
-    // Note: In a real test, we'd need to modify the GcsProvider to accept a custom base URL
-    // For now, this demonstrates the test structure
+    // Note: In a real test, we'd need to modify the GcsProvider to accept a custom
+    // base URL For now, this demonstrates the test structure
     let provider = create_test_provider_with_mock_server(&server).await;
-    
+
     // This test would work if we could inject the mock server URL
     // In the current implementation, this will try to hit the real GCS API
     // but demonstrates the testing approach
   }
 
-  #[tokio::test] 
+  #[tokio::test]
   async fn test_list_objects_empty_bucket() {
     let mut server = Server::new_async().await;
-    
-    let mock = server.mock("GET", format!("/storage/v1/b/{}/o", TEST_BUCKET).as_str())
+
+    let mock = server
+      .mock("GET", format!("/storage/v1/b/{}/o", TEST_BUCKET).as_str())
       .with_status(200)
-      .with_header("content-type", "application/json") 
+      .with_header("content-type", "application/json")
       .with_body(&mock_gcs_empty_response())
       .create_async()
       .await;
 
     let provider = create_test_provider_with_mock_server(&server).await;
-    
+
     // Test would verify empty response handling
     // Result should be an empty vector
   }
@@ -360,8 +376,9 @@ mod tests {
   #[tokio::test]
   async fn test_list_objects_nonexistent_bucket() {
     let mut server = Server::new_async().await;
-    
-    let mock = server.mock("GET", format!("/storage/v1/b/{}/o", "nonexistent-bucket").as_str())
+
+    let mock = server
+      .mock("GET", format!("/storage/v1/b/{}/o", "nonexistent-bucket").as_str())
       .with_status(404)
       .with_header("content-type", "application/json")
       .with_body(r#"{"error": {"code": 404, "message": "The specified bucket does not exist."}}"#)
@@ -369,16 +386,16 @@ mod tests {
       .await;
 
     let provider = create_test_provider_with_mock_server(&server).await;
-    
+
     // Test should verify that appropriate warning is logged and error returned
-    // This satisfies the CLAUDE.md requirement: "remember to throw warnings when bucket name doesn't exist"
   }
 
   #[tokio::test]
   async fn test_list_objects_authentication_required() {
     let mut server = Server::new_async().await;
-    
-    let mock = server.mock("GET", format!("/storage/v1/b/{}/o", TEST_BUCKET).as_str())
+
+    let mock = server
+      .mock("GET", format!("/storage/v1/b/{}/o", TEST_BUCKET).as_str())
       .with_status(401)
       .with_header("content-type", "application/json")
       .with_body(r#"{"error": {"code": 401, "message": "Request is missing required authentication."}}"#)
@@ -386,15 +403,16 @@ mod tests {
       .await;
 
     let provider = create_test_provider_with_mock_server(&server).await;
-    
+
     // Test should verify proper authentication error handling
   }
 
   #[tokio::test]
   async fn test_list_objects_forbidden_access() {
     let mut server = Server::new_async().await;
-    
-    let mock = server.mock("GET", format!("/storage/v1/b/{}/o", TEST_BUCKET).as_str())
+
+    let mock = server
+      .mock("GET", format!("/storage/v1/b/{}/o", TEST_BUCKET).as_str())
       .with_status(403)
       .with_header("content-type", "application/json")
       .with_body(r#"{"error": {"code": 403, "message": "Access denied."}}"#)
@@ -402,15 +420,16 @@ mod tests {
       .await;
 
     let provider = create_test_provider_with_mock_server(&server).await;
-    
+
     // Test should verify proper permission error handling
   }
 
   #[tokio::test]
   async fn test_get_object_success() {
     let mut server = Server::new_async().await;
-    
-    let mock = server.mock("GET", format!("/storage/v1/b/{}/o/{}?alt=media", TEST_BUCKET, TEST_OBJECT_KEY).as_str())
+
+    let mock = server
+      .mock("GET", format!("/storage/v1/b/{}/o/{}?alt=media", TEST_BUCKET, TEST_OBJECT_KEY).as_str())
       .with_status(200)
       .with_header("content-type", "application/json")
       .with_body(&mock_ledger_data())
@@ -418,15 +437,16 @@ mod tests {
       .await;
 
     let provider = create_test_provider_with_mock_server(&server).await;
-    
+
     // Test would verify successful object download
   }
 
   #[tokio::test]
   async fn test_get_object_not_found() {
     let mut server = Server::new_async().await;
-    
-    let mock = server.mock("GET", format!("/storage/v1/b/{}/o/{}?alt=media", TEST_BUCKET, "nonexistent-object").as_str())
+
+    let mock = server
+      .mock("GET", format!("/storage/v1/b/{}/o/{}?alt=media", TEST_BUCKET, "nonexistent-object").as_str())
       .with_status(404)
       .with_header("content-type", "application/json")
       .with_body(r#"{"error": {"code": 404, "message": "No such object."}}"#)
@@ -434,78 +454,88 @@ mod tests {
       .await;
 
     let provider = create_test_provider_with_mock_server(&server).await;
-    
+
     // Test should verify proper object not found error handling
   }
 
   #[tokio::test]
   async fn test_list_objects_with_prefix() {
     let mut server = Server::new_async().await;
-    
+
     let prefix = "staking-epoch-55";
-    let mock = server.mock("GET", format!("/storage/v1/b/{}/o?prefix={}", TEST_BUCKET, prefix).as_str())
+    let mock = server
+      .mock("GET", format!("/storage/v1/b/{}/o?prefix={}", TEST_BUCKET, prefix).as_str())
       .with_status(200)
       .with_header("content-type", "application/json")
-      .with_body(&serde_json::json!({
-        "items": [
-          {
-            "name": TEST_OBJECT_KEY
-          }
-        ]
-      }).to_string())
+      .with_body(
+        &serde_json::json!({
+          "items": [
+            {
+              "name": TEST_OBJECT_KEY
+            }
+          ]
+        })
+        .to_string(),
+      )
       .create_async()
       .await;
 
     let provider = create_test_provider_with_mock_server(&server).await;
-    
+
     // Test would verify prefix filtering works correctly
   }
 
   #[tokio::test]
   async fn test_list_objects_pagination() {
     let mut server = Server::new_async().await;
-    
+
     // First page
-    let mock1 = server.mock("GET", format!("/storage/v1/b/{}/o?maxResults=1000", TEST_BUCKET).as_str())
+    let mock1 = server
+      .mock("GET", format!("/storage/v1/b/{}/o?maxResults=1000", TEST_BUCKET).as_str())
       .with_status(200)
       .with_header("content-type", "application/json")
-      .with_body(&serde_json::json!({
-        "items": [{"name": "object1.json"}],
-        "nextPageToken": "token123"
-      }).to_string())
+      .with_body(
+        &serde_json::json!({
+          "items": [{"name": "object1.json"}],
+          "nextPageToken": "token123"
+        })
+        .to_string(),
+      )
       .create_async()
       .await;
 
-    // Second page  
-    let mock2 = server.mock("GET", format!("/storage/v1/b/{}/o?maxResults=1000&pageToken=token123", TEST_BUCKET).as_str())
+    // Second page
+    let mock2 = server
+      .mock("GET", format!("/storage/v1/b/{}/o?maxResults=1000&pageToken=token123", TEST_BUCKET).as_str())
       .with_status(200)
       .with_header("content-type", "application/json")
-      .with_body(&serde_json::json!({
-        "items": [{"name": "object2.json"}]
-      }).to_string())
+      .with_body(
+        &serde_json::json!({
+          "items": [{"name": "object2.json"}]
+        })
+        .to_string(),
+      )
       .create_async()
       .await;
 
     let provider = create_test_provider_with_mock_server(&server).await;
-    
+
     // Test would verify pagination handling works correctly
   }
 
-  #[tokio::test] 
+  #[tokio::test]
   async fn test_bucket_name_validation_warnings() {
     // Test various invalid bucket names to ensure warnings are logged
     let provider = GcsProvider::new(TEST_PROJECT_ID, None).await.unwrap();
-    
+
     let invalid_buckets = vec![
-      "", // Empty bucket name
-      "bucket with spaces", // Invalid characters
-      "BUCKET-WITH-CAPS", // Invalid format
+      "",                        // Empty bucket name
+      "bucket with spaces",      // Invalid characters
+      "BUCKET-WITH-CAPS",        // Invalid format
       "bucket_with_underscores", // Invalid format
     ];
 
     for bucket in invalid_buckets {
-      // Each of these should log warnings as specified in CLAUDE.md
-      // "remember to throw warnings when bucket name doesn't exist (either aws or gcs)"
       let result = provider.list_objects(bucket, None).await;
       assert!(result.is_err(), "Expected error for invalid bucket name: {}", bucket);
     }
@@ -514,16 +544,17 @@ mod tests {
   #[tokio::test]
   async fn test_error_messages_contain_helpful_context() {
     let provider = GcsProvider::new(TEST_PROJECT_ID, None).await.unwrap();
-    
+
     // Test that error messages include helpful context about authentication setup
     let result = provider.list_objects("nonexistent-bucket-12345", None).await;
-    
+
     if let Err(error) = result {
       let error_msg = error.to_string();
       // Verify error messages contain helpful guidance about GCS setup
       assert!(
-        error_msg.contains("GCS_PROJECT_ID") || error_msg.contains("authentication"), 
-        "Error message should provide setup guidance: {}", error_msg
+        error_msg.contains("GCS_PROJECT_ID") || error_msg.contains("authentication"),
+        "Error message should provide setup guidance: {}",
+        error_msg
       );
     }
   }
@@ -531,16 +562,14 @@ mod tests {
   #[test]
   fn test_provider_name() {
     // Simple sync test for provider name
-    let provider = GcsProvider {
-      client: GcsClient::Anonymous(reqwest::Client::new()),
-      project_id: TEST_PROJECT_ID.to_string(),
-    };
-    
+    let provider =
+      GcsProvider { client: GcsClient::Anonymous(reqwest::Client::new()), project_id: TEST_PROJECT_ID.to_string() };
+
     assert_eq!(provider.provider_name(), "Google Cloud Storage");
   }
 
   // Helper function to test hash matching logic
-  #[test] 
+  #[test]
   fn test_hash_matching_in_filenames() {
     let objects = vec![
       "staking-epoch-55-jw8dXuUqXVgd6NvmpryGmFLnRv1176oozHAro8gMFwj8yuvhBeS-abc123-2024.json".to_string(),
@@ -550,12 +579,12 @@ mod tests {
 
     let hash = "jw8dXuUqXVgd6NvmpryGmFLnRv1176oozHAro8gMFwj8yuvhBeS";
     let matching: Vec<&String> = objects.iter().filter(|key| key.contains(hash)).collect();
-    
+
     assert_eq!(matching.len(), 1);
     assert!(matching[0].contains("staking-epoch-55"));
 
     // Test partial hash matching (first 10 chars)
-    let partial_matches: Vec<&String> = objects.iter().filter(|key| key.contains(&hash[..10])).collect();
+    let partial_matches: Vec<&String> = objects.iter().filter(|key| key.contains(&hash[.. 10])).collect();
     assert_eq!(partial_matches.len(), 1);
   }
 }

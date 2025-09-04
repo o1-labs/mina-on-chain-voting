@@ -45,17 +45,17 @@ mod tests {
   async fn test_create_gcs_provider_success() {
     let config = create_test_config("gcs", Some("test-project-123".to_string()));
     let result = create_storage_provider(&config).await;
-    
+
     assert!(result.is_ok());
     let provider = result.unwrap();
     assert_eq!(provider.provider_name(), "Google Cloud Storage");
   }
 
-  #[tokio::test] 
+  #[tokio::test]
   async fn test_create_gcs_provider_missing_project_id() {
     let config = create_test_config("gcs", None);
     let result = create_storage_provider(&config).await;
-    
+
     assert!(result.is_err());
     if let Err(error) = result {
       let error_msg = error.to_string();
@@ -74,7 +74,7 @@ mod tests {
         Err(_) => true, // Expected if AWS config is not available
       }
     });
-    
+
     assert!(result.is_ok());
   }
 
@@ -82,7 +82,7 @@ mod tests {
   async fn test_unsupported_storage_provider() {
     let config = create_test_config("unsupported", None);
     let result = create_storage_provider(&config).await;
-    
+
     assert!(result.is_err());
     if let Err(error) = result {
       let error_msg = error.to_string();
@@ -95,7 +95,7 @@ mod tests {
   async fn test_empty_storage_provider() {
     let config = create_test_config("", None);
     let result = create_storage_provider(&config).await;
-    
+
     assert!(result.is_err());
     if let Err(error) = result {
       let error_msg = error.to_string();
@@ -107,7 +107,7 @@ mod tests {
   async fn test_case_sensitive_storage_provider() {
     let config = create_test_config("GCS", Some("test-project".to_string()));
     let result = create_storage_provider(&config).await;
-    
+
     // Should fail because we expect lowercase "gcs", not "GCS"
     assert!(result.is_err());
     if let Err(error) = result {
