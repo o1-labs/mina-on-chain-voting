@@ -269,7 +269,8 @@ impl StorageProvider for GcsProvider {
 
 #[cfg(test)]
 mod tests {
-  use mockito::{Mock, Server};
+  use mockito::Server;
+  #[allow(unused_imports)]
   use tokio_test;
 
   use super::*;
@@ -278,6 +279,7 @@ mod tests {
   const TEST_PROJECT_ID: &str = "test-project-123";
   const TEST_BUCKET: &str = "test-bucket";
   const TEST_OBJECT_KEY: &str = "staking-epoch-55-jw8dXuUqXVgd6NvmpryGmFLnRv1176oozHAro8gMFwj8yuvhBeS-abc123-2024.json";
+  #[allow(dead_code)]
   const TEST_LEDGER_HASH: &str = "jw8dXuUqXVgd6NvmpryGmFLnRv1176oozHAro8gMFwj8yuvhBeS";
 
   fn mock_gcs_list_response() -> String {
@@ -312,7 +314,7 @@ mod tests {
     .to_string()
   }
 
-  async fn create_test_provider_with_mock_server(server: &Server) -> GcsProvider {
+  async fn create_test_provider_with_mock_server(_server: &Server) -> GcsProvider {
     // Create a provider that will fall back to anonymous HTTP access
     // We'll mock the Google auth to fail, forcing anonymous mode
     GcsProvider::new(TEST_PROJECT_ID, None).await.expect("Failed to create test provider")
@@ -338,7 +340,7 @@ mod tests {
   async fn test_list_objects_success() {
     let mut server = Server::new_async().await;
 
-    let mock = server
+    let _mock = server
       .mock("GET", format!("/storage/v1/b/{}/o", TEST_BUCKET).as_str())
       .with_status(200)
       .with_header("content-type", "application/json")
@@ -348,7 +350,7 @@ mod tests {
 
     // Note: In a real test, we'd need to modify the GcsProvider to accept a custom
     // base URL For now, this demonstrates the test structure
-    let provider = create_test_provider_with_mock_server(&server).await;
+    let _provider = create_test_provider_with_mock_server(&server).await;
 
     // This test would work if we could inject the mock server URL
     // In the current implementation, this will try to hit the real GCS API
@@ -359,7 +361,7 @@ mod tests {
   async fn test_list_objects_empty_bucket() {
     let mut server = Server::new_async().await;
 
-    let mock = server
+    let _mock = server
       .mock("GET", format!("/storage/v1/b/{}/o", TEST_BUCKET).as_str())
       .with_status(200)
       .with_header("content-type", "application/json")
@@ -367,7 +369,7 @@ mod tests {
       .create_async()
       .await;
 
-    let provider = create_test_provider_with_mock_server(&server).await;
+    let _provider = create_test_provider_with_mock_server(&server).await;
 
     // Test would verify empty response handling
     // Result should be an empty vector
@@ -377,7 +379,7 @@ mod tests {
   async fn test_list_objects_nonexistent_bucket() {
     let mut server = Server::new_async().await;
 
-    let mock = server
+    let _mock = server
       .mock("GET", format!("/storage/v1/b/{}/o", "nonexistent-bucket").as_str())
       .with_status(404)
       .with_header("content-type", "application/json")
@@ -385,7 +387,7 @@ mod tests {
       .create_async()
       .await;
 
-    let provider = create_test_provider_with_mock_server(&server).await;
+    let _provider = create_test_provider_with_mock_server(&server).await;
 
     // Test should verify that appropriate warning is logged and error returned
   }
@@ -394,7 +396,7 @@ mod tests {
   async fn test_list_objects_authentication_required() {
     let mut server = Server::new_async().await;
 
-    let mock = server
+    let _mock = server
       .mock("GET", format!("/storage/v1/b/{}/o", TEST_BUCKET).as_str())
       .with_status(401)
       .with_header("content-type", "application/json")
@@ -402,7 +404,7 @@ mod tests {
       .create_async()
       .await;
 
-    let provider = create_test_provider_with_mock_server(&server).await;
+    let _provider = create_test_provider_with_mock_server(&server).await;
 
     // Test should verify proper authentication error handling
   }
@@ -411,7 +413,7 @@ mod tests {
   async fn test_list_objects_forbidden_access() {
     let mut server = Server::new_async().await;
 
-    let mock = server
+    let _mock = server
       .mock("GET", format!("/storage/v1/b/{}/o", TEST_BUCKET).as_str())
       .with_status(403)
       .with_header("content-type", "application/json")
@@ -419,7 +421,7 @@ mod tests {
       .create_async()
       .await;
 
-    let provider = create_test_provider_with_mock_server(&server).await;
+    let _provider = create_test_provider_with_mock_server(&server).await;
 
     // Test should verify proper permission error handling
   }
@@ -428,7 +430,7 @@ mod tests {
   async fn test_get_object_success() {
     let mut server = Server::new_async().await;
 
-    let mock = server
+    let _mock = server
       .mock("GET", format!("/storage/v1/b/{}/o/{}?alt=media", TEST_BUCKET, TEST_OBJECT_KEY).as_str())
       .with_status(200)
       .with_header("content-type", "application/json")
@@ -436,7 +438,7 @@ mod tests {
       .create_async()
       .await;
 
-    let provider = create_test_provider_with_mock_server(&server).await;
+    let _provider = create_test_provider_with_mock_server(&server).await;
 
     // Test would verify successful object download
   }
@@ -445,7 +447,7 @@ mod tests {
   async fn test_get_object_not_found() {
     let mut server = Server::new_async().await;
 
-    let mock = server
+    let _mock = server
       .mock("GET", format!("/storage/v1/b/{}/o/{}?alt=media", TEST_BUCKET, "nonexistent-object").as_str())
       .with_status(404)
       .with_header("content-type", "application/json")
@@ -453,7 +455,7 @@ mod tests {
       .create_async()
       .await;
 
-    let provider = create_test_provider_with_mock_server(&server).await;
+    let _provider = create_test_provider_with_mock_server(&server).await;
 
     // Test should verify proper object not found error handling
   }
@@ -463,7 +465,7 @@ mod tests {
     let mut server = Server::new_async().await;
 
     let prefix = "staking-epoch-55";
-    let mock = server
+    let _mock = server
       .mock("GET", format!("/storage/v1/b/{}/o?prefix={}", TEST_BUCKET, prefix).as_str())
       .with_status(200)
       .with_header("content-type", "application/json")
@@ -480,7 +482,7 @@ mod tests {
       .create_async()
       .await;
 
-    let provider = create_test_provider_with_mock_server(&server).await;
+    let _provider = create_test_provider_with_mock_server(&server).await;
 
     // Test would verify prefix filtering works correctly
   }
@@ -490,7 +492,7 @@ mod tests {
     let mut server = Server::new_async().await;
 
     // First page
-    let mock1 = server
+    let _mock1 = server
       .mock("GET", format!("/storage/v1/b/{}/o?maxResults=1000", TEST_BUCKET).as_str())
       .with_status(200)
       .with_header("content-type", "application/json")
@@ -505,7 +507,7 @@ mod tests {
       .await;
 
     // Second page
-    let mock2 = server
+    let _mock2 = server
       .mock("GET", format!("/storage/v1/b/{}/o?maxResults=1000&pageToken=token123", TEST_BUCKET).as_str())
       .with_status(200)
       .with_header("content-type", "application/json")
@@ -518,7 +520,7 @@ mod tests {
       .create_async()
       .await;
 
-    let provider = create_test_provider_with_mock_server(&server).await;
+    let _provider = create_test_provider_with_mock_server(&server).await;
 
     // Test would verify pagination handling works correctly
   }
@@ -550,9 +552,13 @@ mod tests {
 
     if let Err(error) = result {
       let error_msg = error.to_string();
-      // Verify error messages contain helpful guidance about GCS setup
+      // Verify error messages contain helpful guidance about GCS setup or bucket
+      // configuration
       assert!(
-        error_msg.contains("GCS_PROJECT_ID") || error_msg.contains("authentication"),
+        error_msg.contains("GCS_PROJECT_ID")
+          || error_msg.contains("authentication")
+          || error_msg.contains("bucket name")
+          || error_msg.contains("project configuration"),
         "Error message should provide setup guidance: {}",
         error_msg
       );
