@@ -83,7 +83,8 @@ impl Vote {
   }
 
   pub fn match_decoded_memo(&mut self, key: &str) -> Option<String> {
-    if let Ok(decoded) = self.decode_memo() {
+    if let Ok(decoded) = self.decode_memo()
+    {
       if decoded == key || decoded == format!("no {}", key)
       {
         return Some(decoded);
