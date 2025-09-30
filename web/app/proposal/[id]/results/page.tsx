@@ -15,34 +15,24 @@ const Page = async ({ params }: { params: PageParams }) => {
   return (
     <div className="container relative">
       <PageHeader className="hidden md:block pb-6">
-        <PageHeaderHeading>{proposal.title}</PageHeaderHeading>
-        <PageHeaderDescription>{proposal.description}</PageHeaderDescription>
+        <PageHeaderHeading className="block">{proposal.title}</PageHeaderHeading>
+        <PageHeaderDescription className="block">{proposal.description}</PageHeaderDescription>
         <SmallerPageHeaderDescription className="text-base max-w-[1000px]">
-          Authoritative document: {' '}
-          <a
-            href={proposal.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-logoOrange"
-          >
+          &nbsp;· Authoritative document:{' '}
+          <a href={proposal.url} target="_blank" rel="noopener noreferrer" className="text-logoOrange">
             {proposal.url}
           </a>
-         </SmallerPageHeaderDescription>
+        </SmallerPageHeaderDescription>
       </PageHeader>
 
       <PageHeader className="block md:hidden pb-6 text-center">
         <PageHeaderHeading className="text-2xl">{proposal.title}</PageHeaderHeading>
         <PageHeaderDescription className="text-base">{proposal.description}</PageHeaderDescription>
         <SmallerPageHeaderDescription className="text-base max-w-[1000px]">
-          Authoritative document: {' '}
-            <a
-              href={proposal.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-logoOrange"
-            >
-              {proposal.url}
-            </a>
+          &nbsp;· Authoritative document:{' '}
+          <a href={proposal.url} target="_blank" rel="noopener noreferrer" className="text-logoOrange">
+            {proposal.url}
+          </a>
         </SmallerPageHeaderDescription>
       </PageHeader>
 

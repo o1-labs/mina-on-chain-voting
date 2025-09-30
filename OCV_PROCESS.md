@@ -1,10 +1,8 @@
 # On-Chain Voting Results for [MIPs](https://github.com/MinaProtocol/MIPs)
 
-This article details the calculation of Mina’s on-chain voting results and how to add new MIPs to the
-[On-Chain Voting (OCV) Dashboard](https://ocv.minaprotocol.com/) for an upcoming voting period.
+This article details the calculation of Mina’s on-chain voting results and how to add new MIPs to the [On-Chain Voting (OCV) Dashboard](https://ocv.minaprotocol.com/) for an upcoming voting period.
 
-Equipped with the tools and knowledge, anyone can independently verify the code, logic, and
-results. We always strive for correctness in our code and exhaustively test.
+Equipped with the tools and knowledge, anyone can independently verify the code, logic, and results. We always strive for correctness in our code and exhaustively test.
 
 All the code for this project is open source ❤️ and available on [GitHub](https://github.com/o1-labs/mina-on-chain-voting).
 
@@ -46,9 +44,7 @@ To add a new MIP, please follow the following steps:
 We will describe in detail how to calculate the results of Mina’s on-chain stake-weighted voting!
 
 ## Overview
-**Note:** This tutorial uses epoch 55 and specific hardcoded values as a concrete example to
-demonstrate the voting calculation process. You'll need to adjust these values for your actual use
-case.
+**Note:** This tutorial uses epoch 55 and specific hardcoded values as a concrete example to demonstrate the voting calculation process. You'll need to adjust these values for your actual use case.
 At a high level, we will
 
 1. Obtain the _next-staking-ledger_ of the next voting epoch
@@ -65,8 +61,7 @@ At a high level, we will
 
 ## Calculating the Results (Using MIP3/MIP4 as Examples)
 
-As mentioned above, this tutorial uses specific historical votes to demonstrate the process. We'll
-calculate the results for MIP3 and MIP4 voting:
+As mentioned above, this tutorial uses specific historical votes to demonstrate the process. We'll calculate the results for MIP3 and MIP4 voting:
 
 - _MIP3 Start: 5/20/23 at 6:00 AM UTC (Epoch 53, Slot 2820)_
 
@@ -129,12 +124,10 @@ Extract the value corresponding to the deeply nested hash key
 `response['data']['blocks'][0]['protocolState']['consensusState']['nextEpochData']['ledger']['hash']
 `
 
-b. Now that we have the appropriate ledger hash, we can acquire the corresponding staking ledger, in
-fact, the next staking ledger of epoch 54. You can use any of the following sources (extra credit: use them all and check diffs)
+b. Now that we have the appropriate ledger hash, we can acquire the corresponding staking ledger, in fact, the next staking ledger of epoch 54. You can use any of the following sources (extra credit: use them all and check diffs)
 
 - [Mina Explorer’s data archive](https://docs.minaexplorer.com/minaexplorer/data-archive)
-- If you’re running a local daemon, you can export the next staking ledger (while we are in epoch 54)
-by
+- If you’re running a local daemon, you can export the next staking ledger (while we are in epoch 54) by
 
 `mina ledger export next-staking-ledger > path/to/ledger.json`
 
@@ -145,8 +138,7 @@ and confirm the hash using
 This calculation may take several minutes!
 
 ### Aggregate voting stake
-a. Calculate each voter's stake from the staking ledger. Aggregate all delegations to each voter (by
-default, an account is delegated to itself)
+a. Calculate each voter's stake from the staking ledger. Aggregate all delegations to each voter (by default, an account is delegated to itself)
 ```
 agg_stake = {}
 delegators = set()
@@ -179,10 +171,7 @@ c. Now agg_stake is a Python dict containing each voter's aggregated stake
 
 ### Obtain and parse votes
 
-To obtain all MIP3 and MIP4 votes, we need to get all transactions corresponding to the voting
-period (votes are just special transactions after all). It would be nice to be able to prefilter the
-transactions more and only fetch what is required, but since memo fields are base58 encoded and any
-capitalization of the keyword is valid, prefiltering will be complex and error-prone.
+To obtain all MIP3 and MIP4 votes, we need to get all transactions corresponding to the voting period (votes are just special transactions after all). It would be nice to be able to prefilter the transactions more and only fetch what is required, but since memo fields are base58 encoded and any capitalization of the keyword is valid, prefiltering will be complex and error-prone.
 
 a. Multiple data sources
 - Run a local archive node
@@ -194,11 +183,8 @@ b. Obtain the unique voting transactions
     2. `source = receiver`
     3. Valid _memo_ field (either _mip3_ or _no mip3_)
 - Fetch all transactions for the voting period
-    1. To avoid our requests getting too big and potentially timing out, we will request the transactions
-from each block individually
-    2. Block production varies over time; sometimes many blocks are produced in a slot, sometimes no blocks
-are produced. A priori, we do not know the exact block heights which constitute the voting period.
-We fetch all _canonical_ block heights for the voting period, determined by the _start_ and _end_ times
+    1. To avoid our requests getting too big and potentially timing out, we will request the transactions from each block individually
+    2. Block production varies over time; sometimes many blocks are produced in a slot, sometimes no blocks are produced. As priority, we do not know the exact block heights which constitute the voting period. We fetch all _canonical_ block heights for the voting period, determined by the _start_ and _end_ times
 
   ```
   query BlockHeightsInVotingPeriod {
@@ -208,8 +194,7 @@ We fetch all _canonical_ block heights for the voting period, determined by the 
   }
   ```
 
-  The max number of slots, hence blocks, in an epoch is _7140_. The response in includes block heights
-  _253078_ to _255481_
+  The max number of slots, hence blocks, in an epoch is _7140_. The response in includes block heights _253078_ to _255481_
   ```
   {
     "data": {
@@ -242,11 +227,7 @@ We fetch all _canonical_ block heights for the voting period, determined by the 
     }
   }
   ```
-  where $_blockHeight_ is substituted with each of the voting period’s canonical block heights (
-  automation is highly recommended). Again, we include a limit which far exceeds the number of
-  transactions in any block so we don’t accidentally get short-changed by a default limit. This
-  process will take several minutes if done sequentially. Performance improvements are left as an
-  exercise to the reader.
+  where $_blockHeight_ is substituted with each of the voting period’s canonical block heights (automation is highly recommended). Again, we include a limit which far exceeds the number of transactions in any block so we don’t accidentally get short-changed by a default limit. This process will take several minutes if done sequentially. Performance improvements are left as an exercise to the reader.
 
   For example, the response for block _216063_
   ```
@@ -287,15 +268,13 @@ We fetch all _canonical_ block heights for the voting period, determined by the 
    - _memo_ exactly equal to _MIP3_ or _no MIP3_
    - _source_ = _receiver_ (self transaction)
 4. The memo field is base58 encoded
-5. If there are multiple votes associated with a single public key, only the _latest_ vote is counted;
-  _latest_ being defined:
+5. If there are multiple votes associated with a single public key, only the _latest_ vote is counted; _latest_ being defined:
    - For multiple votes from the same account across several blocks, take the vote in the highest block.
    - For multiple votes from the same account in the same block, take the vote with the highest nonce.
 
 ### Calculate weighted voting results
   - Sum all aggregated voter stake to get the total voting stake
-  - For each delegate, start with their total stake, and subtract the balances of accounts that delegate
-  to them with an overriding vote
+  - For each delegate, start with their total stake, and subtract the balances of accounts that delegate to them with an overriding vote
   - Divide yes/no vote stakes by the total voting stake
 
 ### Adjust Votes and Voting Stake with Non-Delegating Voters
@@ -329,7 +308,4 @@ MIP3 and MIP4 Voting Results
 
 ## Credits
 
-This tutorial is based on the original MIP voting implementation by
-the [Granola Team](https://granola.team/about/). Their work on on-chain governance functionality
-represents a significant milestone in advancing community participation and decentralization of the
-Mina ecosystem.
+This tutorial is based on the original MIP voting implementation by the [Granola Team](https://granola.team/about/). Their work on on-chain governance functionality represents a significant milestone in advancing community participation and decentralization of the Mina ecosystem.
