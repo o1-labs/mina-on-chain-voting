@@ -538,10 +538,10 @@
       "key": "MIP86",
       "category": "Core",
       "title": "Demo MIP for Mesa Upgrade - Testing Purposes Only",
-      "description": "From Thursday, 25 September 2025, to Monday, 29 September 2025",
+      "description": "From Thursday, 25 September 2025, to Friday, 10 October 2025 13:34:30 GMT",
       "start_time": 1758791040000,
-      "end_time": 1759185040000,
-      "epoch": 36,
+      "end_time": 1760103270000,
+      "epoch": 32,
       "ledger_hash": "jwnuZ1gKvqkBvskrKhV84gD2z7kSTWVPsJohxg16VARpLz345f2",
       "url": "",
       "version": "V2",
@@ -560,6 +560,20 @@
       "url": "",
       "version": "V2",
       "network": "devnet"
+    },
+    {
+      "id": 41,
+      "key": "MIP88",
+      "category": "Core",
+      "title": "Demo MIP for Mesa Upgrade - Testing Purposes Only - 2",
+      "description": "From Thursday, 25 September 2025, to Friday, 10 October 2025 13:34:30 GMT",
+      "start_time": 1758791040000,
+      "end_time": 1760103270000,
+      "epoch": 32,
+      "ledger_hash": "jwnuZ1gKvqkBvskrKhV84gD2z7kSTWVPsJohxg16VARpLz345f2",
+      "url": "",
+      "version": "V2",
+      "network": "mainnet"
     }
   ]
 }
