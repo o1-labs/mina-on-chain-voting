@@ -52,7 +52,7 @@
       "start_time": 1726171350000,
       "end_time": 1726687661000,
       "epoch": 11,
-      "url": "",
+      "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
       "network": "devnet"
     },
@@ -65,7 +65,7 @@
       "start_time": 1726171350000,
       "end_time": 1726687661000,
       "epoch": 11,
-      "url": "",
+      "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
       "network": "devnet"
     },
@@ -78,7 +78,7 @@
       "start_time": 1726171350000,
       "end_time": 1726687661000,
       "epoch": 11,
-      "url": "",
+      "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
       "network": "devnet"
     },
@@ -91,7 +91,7 @@
       "start_time": 1753702740000,
       "end_time": 1754307832603,
       "epoch": 31,
-      "url": "",
+      "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
       "network": "devnet"
     },
@@ -104,7 +104,7 @@
       "start_time": 1755768973601,
       "end_time": 1758326400000,
       "epoch": 36,
-      "url": "",
+      "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
       "network": "devnet"
     },
@@ -117,7 +117,7 @@
       "start_time": 1755995003000,
       "end_time": 1756095003000,
       "epoch": 37,
-      "url": "",
+      "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
       "network": "devnet"
     },
@@ -130,7 +130,7 @@
       "start_time": 1755768973601,
       "end_time": 1758326400000,
       "epoch": 37,
-      "url": "",
+      "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
       "network": "devnet"
     },
@@ -143,7 +143,7 @@
       "start_time": 1755768973601,
       "end_time": 1758326400000,
       "epoch": 38,
-      "url": "",
+      "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
       "network": "devnet"
     },
@@ -156,7 +156,7 @@
       "start_time": 1755768973601,
       "end_time": 1758326400000,
       "epoch": 38,
-      "url": "",
+      "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
       "network": "devnet"
     },
@@ -169,7 +169,7 @@
       "start_time": 1755768973601,
       "end_time": 1758326400000,
       "epoch": 39,
-      "url": "",
+      "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
       "network": "devnet"
     },
@@ -182,7 +182,7 @@
       "start_time": 1755768973601,
       "end_time": 1758326400000,
       "epoch": 39,
-      "url": "",
+      "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
       "network": "devnet"
     },
@@ -195,7 +195,7 @@
       "start_time": 1755768973601,
       "end_time": 1758326400000,
       "epoch": 40,
-      "url": "",
+      "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
       "network": "devnet"
     },
@@ -208,7 +208,7 @@
       "start_time": 1755768973601,
       "end_time": 1758326400000,
       "epoch": 40,
-      "url": "",
+      "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
       "network": "devnet"
     },
@@ -221,7 +221,7 @@
       "start_time": 1755768973601,
       "end_time": 1758326400000,
       "epoch": 41,
-      "url": "",
+      "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
       "network": "devnet"
     },
@@ -541,11 +541,25 @@
       "description": "From Thursday, 25 September 2025, to Monday, 29 September 2025",
       "start_time": 1758791040000,
       "end_time": 1759185040000,
-      "epoch": 31,
+      "epoch": 36,
       "ledger_hash": "jwnuZ1gKvqkBvskrKhV84gD2z7kSTWVPsJohxg16VARpLz345f2",
       "url": "",
       "version": "V2",
       "network": "mainnet"
+    },
+    {
+      "id": 40,
+      "key": "MIP87",
+      "category": "Core",
+      "title": "Demo MIP87",
+      "description": "From Thursday, September 25, 2025 to Sunday, 5 October 2025 14:43:48",
+      "start_time": 1759185040000,
+      "end_time": 1759675428000,
+      "epoch": 36,
+      "ledger_hash": "jxSvzoyxvkvaVaFLGYtjkA5SznqQYwWeB5nRiUNz9un62bFcXp9",
+      "url": "",
+      "version": "V2",
+      "network": "devnet"
     }
   ]
 }

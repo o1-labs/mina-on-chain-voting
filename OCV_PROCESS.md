@@ -31,7 +31,7 @@ To add a new MIP, please follow the following steps:
    - the `id` should be the next available integer
    - the `title` should be a descriptive title of the MIP
    - the `key` should be the MIP number (e.g. `MIP5`) - This will be the _memo_ used for voting this MIP
-   - the `epoch` should be the epoch number when voting will take place for this MIP
+   - the `epoch` should be the epoch number when voting will take place for this MIP. [Check here](https://minascan.io/devnet/time-machine) the current epoch.
    - the `start_time` and `end_time` should be the timestamps when voting starts and ends for this MIP
    - the `url` should be a link to the MIP's proposal on the [Mina Protocol MIPs repository](https://github.com/MinaProtocol/MIPs/tree/main/MIPS)
    - the network should be `mainnet` or `devnet`
