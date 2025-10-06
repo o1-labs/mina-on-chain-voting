@@ -21,6 +21,7 @@ pub struct Proposal {
   pub description: String,
   pub url: String,
   pub network: Network,
+  pub is_complete: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

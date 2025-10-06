@@ -13,6 +13,11 @@ export const safeFetch = async (
   const response = await fetch(url, { ...requestOptions });
 
   if (!response.ok) {
+    console.log('---------------------------');
+    console.log(response);
+    // ✅ READ THE ERROR BODY
+    const errorBody = await response.text();
+    console.log('Error body:', errorBody);
     throw new SafeFetchError(response.url, response.status, response.statusText);
   }
 

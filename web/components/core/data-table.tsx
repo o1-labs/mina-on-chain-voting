@@ -95,11 +95,14 @@ export const DataTable = <T, V>({ columns, columnVisibility, data, Toolbar, vari
                   onClick={
                     variant === 'proposal'
                       ? () => {
+                          if (row.getValue('status') === 'In Review') {
+                            return;
+                          }
                           const proposalId = row.getValue('id');
                           router.push(
                             row.getValue('status') === 'Completed'
                               ? `/proposal/${proposalId}/results`
-                              : `/proposal/${proposalId}`
+                              : `/proposal/${proposalId}`,
                           );
                         }
                       : undefined

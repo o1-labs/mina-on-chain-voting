@@ -57,6 +57,17 @@ export const votesTableDirections = [
   },
 ] satisfies VotesTableDirection[];
 
+export const votesTableVotingStatuses = [
+  {
+    value: 'Valid',
+    icon: CheckIcon,
+  },
+  {
+    value: 'Invalid',
+    icon: Cross2Icon,
+  }
+]
+
 const columns: ColumnDef<Props['votes'][number]>[] = [
   {
     accessorKey: 'height',
@@ -178,6 +189,51 @@ const columns: ColumnDef<Props['votes'][number]>[] = [
     enableSorting: false,
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
+    },
+  },
+  {
+    accessorKey: 'weight',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Voting Status" />,
+    cell: ({ row }) => {
+      const weight = parseFloat(row.getValue('weight'));
+      const isValid = weight !== 0;
+
+      if (!isValid) {
+        return (
+          <HoverCard openDelay={200} closeDelay={100}>
+            <HoverCardTrigger>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-md">
+                <div className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full animate-pulse" />
+                <span className="text-xs font-semibold text-red-700 dark:text-red-400">Invalid</span>
+              </div>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-fit">
+              <span className="text-xs font-medium text-red-500">
+                Stake must be in an account for at least 2 epochs to weight in voting.
+              </span>
+            </HoverCardContent>
+          </HoverCard>
+        );
+      }
+
+      return (
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 rounded-md">
+          <div className="w-2 h-2 bg-emerald-500 dark:bg-emerald-400 rounded-full" />
+          <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Valid</span>
+        </div>
+      );
+    },
+    enableHiding: false,
+    enableSorting: false,
+    filterFn: (row, id, value) => {
+      const weight = parseFloat(row.getValue(id));
+      const isValid = weight !== 0;
+      if (value.includes('Valid') && isValid) {
+        return true;
+      } else if (value.includes('Invalid') && !isValid) {
+        return true;
+      }
+      return false;
     },
   },
 ];

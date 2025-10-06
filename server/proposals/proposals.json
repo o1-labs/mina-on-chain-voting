@@ -13,7 +13,8 @@
       "ledger_hash": "jxQXzUkst2L9Ma9g9YQ3kfpgB5v5Znr1vrYb1mupakc5y7T89H8",
       "url": "https://github.com/MinaProtocol/MIPs/blob/main/MIPS/mip-0001-remove-supercharged-rewards.md",
       "version": "V1",
-      "network": "mainnet"
+      "network": "mainnet",
+      "is_complete": true
     },
     {
       "id": 1,
@@ -27,7 +28,8 @@
       "ledger_hash": "jw8dXuUqXVgd6NvmpryGmFLnRv1176oozHAro8gMFwj8yuvhBeS",
       "url": "https://github.com/MinaProtocol/MIPs/blob/main/MIPS/mip-0003-kimchi.md",
       "version": "V2",
-      "network": "mainnet"
+      "network": "mainnet",
+      "is_complete": true
     },
     {
       "id": 2,
@@ -41,7 +43,8 @@
       "ledger_hash": "jw8dXuUqXVgd6NvmpryGmFLnRv1176oozHAro8gMFwj8yuvhBeS",
       "url": "https://github.com/MinaProtocol/MIPs/blob/main/MIPS/mip-0004-zkapps.md",
       "version": "V2",
-      "network": "mainnet"
+      "network": "mainnet",
+      "is_complete": true
     },
     {
       "id": 3,
@@ -54,7 +57,8 @@
       "epoch": 11,
       "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 4,
@@ -67,7 +71,8 @@
       "epoch": 11,
       "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 5,
@@ -80,7 +85,8 @@
       "epoch": 11,
       "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 6,
@@ -93,7 +99,8 @@
       "epoch": 31,
       "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 7,
@@ -106,7 +113,8 @@
       "epoch": 36,
       "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 8,
@@ -119,7 +127,8 @@
       "epoch": 37,
       "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 9,
@@ -132,7 +141,8 @@
       "epoch": 37,
       "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 10,
@@ -145,7 +155,8 @@
       "epoch": 38,
       "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 11,
@@ -158,7 +169,8 @@
       "epoch": 38,
       "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 12,
@@ -171,7 +183,8 @@
       "epoch": 39,
       "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 13,
@@ -184,7 +197,8 @@
       "epoch": 39,
       "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 14,
@@ -197,7 +211,8 @@
       "epoch": 40,
       "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 15,
@@ -210,7 +225,8 @@
       "epoch": 40,
       "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 16,
@@ -223,7 +239,8 @@
       "epoch": 41,
       "url": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 17,
@@ -237,7 +254,8 @@
       "ledger_hash": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 18,
@@ -251,7 +269,8 @@
       "ledger_hash": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 19,
@@ -265,7 +284,8 @@
       "ledger_hash": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 20,
@@ -279,7 +299,8 @@
       "ledger_hash": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 21,
@@ -293,7 +314,8 @@
       "ledger_hash": "jwzTjsNuVSY9LY529Qm3cvVSTCUqQrNDjhFAsMR89YNquVK9kAm",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 22,
@@ -307,7 +329,8 @@
       "ledger_hash": "jxSvzoyxvkvaVaFLGYtjkA5SznqQYwWeB5nRiUNz9un62bFcXp9",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 23,
@@ -321,7 +344,8 @@
       "ledger_hash": "jxSvzoyxvkvaVaFLGYtjkA5SznqQYwWeB5nRiUNz9un62bFcXp9",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 24,
@@ -335,7 +359,8 @@
       "ledger_hash": "jxSvzoyxvkvaVaFLGYtjkA5SznqQYwWeB5nRiUNz9un62bFcXp9",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 25,
@@ -349,7 +374,8 @@
       "ledger_hash": "jxSvzoyxvkvaVaFLGYtjkA5SznqQYwWeB5nRiUNz9un62bFcXp9",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 26,
@@ -363,7 +389,8 @@
       "ledger_hash": "jxSvzoyxvkvaVaFLGYtjkA5SznqQYwWeB5nRiUNz9un62bFcXp9",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 27,
@@ -377,7 +404,8 @@
       "ledger_hash": "jxSvzoyxvkvaVaFLGYtjkA5SznqQYwWeB5nRiUNz9un62bFcXp9",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 28,
@@ -391,7 +419,8 @@
       "ledger_hash": "jxSvzoyxvkvaVaFLGYtjkA5SznqQYwWeB5nRiUNz9un62bFcXp9",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 29,
@@ -405,7 +434,8 @@
       "ledger_hash": "jxSvzoyxvkvaVaFLGYtjkA5SznqQYwWeB5nRiUNz9un62bFcXp9",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 30,
@@ -419,7 +449,8 @@
       "ledger_hash": "jxSvzoyxvkvaVaFLGYtjkA5SznqQYwWeB5nRiUNz9un62bFcXp9",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 31,
@@ -433,7 +464,8 @@
       "ledger_hash": "jxSvzoyxvkvaVaFLGYtjkA5SznqQYwWeB5nRiUNz9un62bFcXp9",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 32,
@@ -447,7 +479,8 @@
       "ledger_hash": "jxSvzoyxvkvaVaFLGYtjkA5SznqQYwWeB5nRiUNz9un62bFcXp9",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 33,
@@ -461,7 +494,8 @@
       "ledger_hash": "jxSvzoyxvkvaVaFLGYtjkA5SznqQYwWeB5nRiUNz9un62bFcXp9",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 34,
@@ -475,7 +509,8 @@
       "ledger_hash": "jwmh3bqvmRHAZtaT8WyLXfBdWCM8CJbHc6rkw5RkjMR7n3ddTKb",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 35,
@@ -489,7 +524,8 @@
       "ledger_hash": "jxSvzoyxvkvaVaFLGYtjkA5SznqQYwWeB5nRiUNz9un62bFcXp9",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 36,
@@ -503,7 +539,8 @@
       "ledger_hash": "jxSvzoyxvkvaVaFLGYtjkA5SznqQYwWeB5nRiUNz9un62bFcXp9",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 37,
@@ -517,7 +554,8 @@
       "ledger_hash": "jxSvzoyxvkvaVaFLGYtjkA5SznqQYwWeB5nRiUNz9un62bFcXp9",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": true
     },
     {
       "id": 38,
@@ -531,7 +569,8 @@
       "ledger_hash": "jxSvzoyxvkvaVaFLGYtjkA5SznqQYwWeB5nRiUNz9un62bFcXp9",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": false
     },
     {
       "id": 39,
@@ -545,7 +584,8 @@
       "ledger_hash": "jwnuZ1gKvqkBvskrKhV84gD2z7kSTWVPsJohxg16VARpLz345f2",
       "url": "",
       "version": "V2",
-      "network": "mainnet"
+      "network": "mainnet",
+      "is_complete": false
     },
     {
       "id": 40,
@@ -559,7 +599,8 @@
       "ledger_hash": "jxSvzoyxvkvaVaFLGYtjkA5SznqQYwWeB5nRiUNz9un62bFcXp9",
       "url": "",
       "version": "V2",
-      "network": "devnet"
+      "network": "devnet",
+      "is_complete": false
     },
     {
       "id": 41,
@@ -573,7 +614,8 @@
       "ledger_hash": "jwnuZ1gKvqkBvskrKhV84gD2z7kSTWVPsJohxg16VARpLz345f2",
       "url": "",
       "version": "V2",
-      "network": "mainnet"
+      "network": "mainnet",
+      "is_complete": false
     }
   ]
 }

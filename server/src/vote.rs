@@ -183,13 +183,17 @@ impl Wrapper<Vec<Vote>> {
   pub fn into_weighted(self, proposal: &Proposal, ledger: &Ledger, tip: i64) -> Wrapper<Vec<VoteWithWeight>> {
     tracing::info!("Processing votes for proposal: {}", proposal.key);
     let votes = self.process(&proposal.key, tip);
+    tracing::info!("Processed {} votes for proposal: {}", votes.0.len(), proposal.key);
 
     let votes_with_stake: Vec<VoteWithWeight> = votes
       .0
       .iter()
-      .filter_map(|(account, vote)| {
-        let stake = ledger.get_stake_weight(&votes, &proposal.version, account).ok()?;
-        Some(vote.to_weighted(stake))
+      .map(|(account, vote)| {
+        // Get stake or default to 0 if not found
+        let stake = ledger.get_stake_weight(&votes, &proposal.version, account)
+          .unwrap_or(Decimal::ZERO);
+
+        vote.to_weighted(stake)
       })
       .collect();
 

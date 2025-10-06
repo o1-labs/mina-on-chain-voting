@@ -4,7 +4,7 @@ import { Button } from 'components/core/button';
 import { DataTableDownload } from 'components/core/data-table-download';
 import { DataTableFilter } from 'components/core/data-table-filter';
 import { Input } from 'components/core/input';
-import { votesTableDirections, votesTableStatuses } from 'components/votes-table';
+import { votesTableDirections, votesTableStatuses, votesTableVotingStatuses } from 'components/votes-table';
 
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { Table } from '@tanstack/react-table';
@@ -28,6 +28,7 @@ export const VotesTableToolbar = <T,>({ table }: Props<T>) => {
 
         <DataTableFilter column={table.getColumn('status')} title="Status" options={votesTableStatuses} />
         <DataTableFilter column={table.getColumn('direction')} title="Vote" options={votesTableDirections} />
+        <DataTableFilter column={table.getColumn('weight')} title="Voting Status" options={votesTableVotingStatuses} />
 
         {isFiltered && (
           <Button variant="ghost" onClick={() => table.resetColumnFilters()} className="h-8 px-2 lg:px-3">

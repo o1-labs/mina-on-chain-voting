@@ -172,6 +172,10 @@ const columns: ColumnDef<ProposalListParserOutcome[number]>[] = [
     cell: ({ row }) => {
       const buttonText = row.getValue('status') === 'Completed' ? 'Results' : 'Go Vote';
 
+      if (row.getValue('status') === 'In Review') {
+        return '';
+      }
+
       return (
         <Link
           href={

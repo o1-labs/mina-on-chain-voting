@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
 
-import { Metadata } from 'next';
+import { Metadata, Viewport } from 'next';
 import { IBM_Plex_Sans } from 'next/font/google';
 
 import { siteConfig } from 'common/config';
@@ -16,7 +16,10 @@ import './globals.css';
 const FONT = IBM_Plex_Sans({ weight: ['400'], subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: `Mina - ${siteConfig.title}`,
+  title: `Mina - ${siteConfig.title}`
+};
+
+export const viewport: Viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: 'white' },
     { media: '(prefers-color-scheme: dark)', color: 'black' },

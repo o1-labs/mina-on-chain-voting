@@ -1,5 +1,3 @@
-import { isEmpty } from 'common/utils';
-
 import {
   CoreApiInfoParser,
   ProposalListParser,
@@ -116,8 +114,8 @@ const processProposal = <T extends ProposalListParserOutcome[number]>(
 
   const hasNotStarted = now.isBefore(startDate) && now.isBefore(endDate);
   const inProgress = now.isBetween(startDate, endDate);
-  const inReview = now.isAfter(endDate) && isEmpty(proposal.ledger_hash);
-  const isDone = now.isAfter(endDate) && !isEmpty(proposal.ledger_hash);
+  const inReview = now.isAfter(endDate) && !proposal.is_complete;
+  const isDone = now.isAfter(endDate) && proposal.is_complete;
 
   return {
     ...proposal,
