@@ -190,8 +190,7 @@ impl Wrapper<Vec<Vote>> {
       .iter()
       .map(|(account, vote)| {
         // Get stake or default to 0 if not found
-        let stake = ledger.get_stake_weight(&votes, &proposal.version, account)
-          .unwrap_or(Decimal::ZERO);
+        let stake = ledger.get_stake_weight(&votes, &proposal.version, account).unwrap_or(Decimal::ZERO);
 
         vote.to_weighted(stake)
       })
