@@ -52,6 +52,7 @@ impl Archive {
       AND b.timestamp::bigint BETWEEN $1 AND $2"
     );
     let results = results.bind::<BigInt, _>(start_time).bind::<BigInt, _>(end_time).get_results(connection)?;
+    tracing::info!("Fetched {} transactions from archive db between {} and {}", results.len(), start_time, end_time);
     Ok(results)
   }
 }

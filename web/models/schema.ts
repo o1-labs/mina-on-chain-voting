@@ -50,6 +50,7 @@ export const ProposalSchema = z.object({
   title: z.string(),
   description: z.string(),
   url: z.string(),
+  is_complete: z.boolean(),
 });
 
 export const getProposalSchema = ProposalSchema.and(

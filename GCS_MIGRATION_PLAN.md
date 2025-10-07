@@ -20,7 +20,7 @@ The project currently has the following AWS-specific coupling:
 
 #### 2. **AWS S3 Client Implementation**
 - **File**: `/server/src/util/s3.rs`
-- **Functionality**: 
+- **Functionality**:
   - Creates a singleton AWS S3 client
   - Hard-coded to `us-west-2` region
   - Uses AWS SDK configuration
@@ -105,7 +105,7 @@ The system currently downloads staking ledger files from AWS S3 using:
    ```bash
    # Ensure your .env file has the correct AWS bucket name
    echo "BUCKET_NAME=673156464838-mina-staking-ledgers" >> .env
-   
+
    # Start services
    docker-compose up --build
    ```
@@ -137,14 +137,14 @@ The system currently downloads staking ledger files from AWS S3 using:
    curl -X GET "http://localhost:8080/api/proposals" | jq '.[] | select(.ledger_hash != null) | {id: .id, ledger_hash: .ledger_hash}'
    ```
 3. Trigger ledger download using one of these methods:
-   
+
    **Method A - Using proposal results endpoint:**
    ```bash
    # Replace ID with a proposal that has ledger_hash
    PROPOSAL_ID=1
    curl -X GET "http://localhost:8080/api/proposal/${PROPOSAL_ID}/results"
    ```
-   
+
    **Method B - Using MEF proposal consideration endpoint:**
    ```bash
    # Replace with actual values from your test environment
@@ -159,7 +159,7 @@ The system currently downloads staking ledger files from AWS S3 using:
    - JSON file writing to cache
    - Log messages indicating ledger fetch operations
 
-**Expected Result**: 
+**Expected Result**:
 - Ledger file downloaded and cached locally
 - No AWS SDK errors in logs
 - Subsequent requests use cached version (no additional S3 calls)
@@ -174,7 +174,7 @@ The system currently downloads staking ledger files from AWS S3 using:
 3. Second request should use cached file and show no additional S3 calls
 4. Check that cached ledger file exists in your configured `LEDGER_STORAGE_PATH` (default: `/tmp/ledgers/`)
 
-**Expected Result**: 
+**Expected Result**:
 - Only one set of S3 API calls in logs for the first request
 - Second request completes faster without S3 operations
 - Ledger JSON file exists in cache directory with filename `{ledger_hash}.json`
@@ -191,7 +191,7 @@ The system currently downloads staking ledger files from AWS S3 using:
 
 #### Test Execution Checklist
 - [x] Environment variables configured correctly
-- [x] Docker containers start successfully  
+- [x] Docker containers start successfully
 - [x] Archive database connection working (via port forwarding)
 - [x] Server responds to health checks
 - [x] **Important**: Found at least one proposal with `ledger_hash` field OR have valid MEF parameters
@@ -279,19 +279,19 @@ Add new configuration options:
 #[derive(Clone, Args)]
 pub struct OcvConfig {
     // ...existing fields...
-    
+
     /// Storage provider type: "aws" or "gcs"
     #[clap(long, env = "STORAGE_PROVIDER", default_value = "aws")]
     pub storage_provider: String,
-    
+
     /// GCS project ID (required when using GCS)
     #[clap(long, env = "GCS_PROJECT_ID")]
     pub gcs_project_id: Option<String>,
-    
+
     /// GCS service account key path (optional)
     #[clap(long, env = "GCS_SERVICE_ACCOUNT_KEY_PATH")]
     pub gcs_service_account_key_path: Option<String>,
-    
+
     /// AWS region (for AWS S3)
     #[clap(long, env = "AWS_REGION", default_value = "us-west-2")]
     pub aws_region: String,
@@ -346,17 +346,17 @@ Replace direct S3 calls with storage abstraction:
 impl Ledger {
     async fn download(ocv: &Ocv, hash: &String, to: &PathBuf) -> Result<()> {
         let storage = ocv.storage_provider.as_ref();
-        
+
         // List objects to find the one with matching hash
         let objects = storage.list_objects(&ocv.bucket_name, None).await?;
         let object_key = objects
             .into_iter()
             .find(|key| key.contains(hash))
             .ok_or(anyhow!("Could not retrieve dump corresponding to {hash}"))?;
-        
+
         // Download object
         let bytes = storage.get_object(&ocv.bucket_name, &object_key).await?;
-        
+
         // Process tar.gz content (existing logic)
         let tar_gz = GzDecoder::new(&bytes[..]);
         let mut archive = Archive::new(tar_gz);
@@ -437,7 +437,7 @@ enum GcsClient {
 
 #### Pagination Support ✅ **IMPLEMENTED**
 - **AWS S3**: Built-in pagination handling
-- **GCS Authenticated**: Built-in pagination handling  
+- **GCS Authenticated**: Built-in pagination handling
 - **GCS Anonymous**: ✅ **Custom pagination with `nextPageToken` support**
   - Fetches up to 10 pages (10,000 objects)
   - Prevents excessive API calls
@@ -490,7 +490,7 @@ if object_key.ends_with(".json") {
 ```
 ✅ Bucket Access: 4,250 objects found in mina-staking-ledgers
 ✅ Hash Search: 25 matching objects for test hash
-✅ File Download: Successfully downloaded JSON ledger files  
+✅ File Download: Successfully downloaded JSON ledger files
 ✅ Format Detection: Correctly identified .json vs .tar.gz files
 ✅ Caching: Subsequent requests use cached files
 ✅ Error Handling: Graceful fallback and clear error messages
@@ -522,7 +522,7 @@ We are not doing bucket migration.
 ### New Files
 1. `/server/src/storage/mod.rs` - Storage trait definition
 2. `/server/src/storage/aws_s3.rs` - AWS S3 provider implementation
-3. `/server/src/storage/gcs.rs` - Google Cloud Storage provider implementation  
+3. `/server/src/storage/gcs.rs` - Google Cloud Storage provider implementation
 4. `/server/src/storage/factory.rs` - Provider factory
 
 ### Modified Files
@@ -571,13 +571,13 @@ We are not doing bucket migration.
 
 ### 🎉 **SUCCESS**: Google Cloud Storage Migration Completed Successfully!
 
-**Date Completed**: December 12, 2025  
+**Date Completed**: December 12, 2025
 **Status**: ✅ **FULLY FUNCTIONAL & PRODUCTION READY**
 
 ### 🏆 Key Achievements:
 
 1. **✅ Complete Storage Abstraction**: Clean provider pattern supporting both AWS S3 and GCS
-2. **✅ Anonymous Public Bucket Access**: No credentials required for public GCS buckets  
+2. **✅ Anonymous Public Bucket Access**: No credentials required for public GCS buckets
 3. **✅ Smart Authentication Fallback**: Graceful degradation from authenticated to anonymous access
 4. **✅ Full Pagination Support**: Handles 4,250+ objects across multiple pages efficiently
 5. **✅ Multi-Format Support**: Works with both compressed archives (.tar.gz) and direct JSON files (.json)
@@ -589,13 +589,13 @@ We are not doing bucket migration.
 **Switch to GCS:**
 ```bash
 STORAGE_PROVIDER=gcs
-GCS_PROJECT_ID=o1labs-192920  
+GCS_PROJECT_ID=o1labs-192920
 BUCKET_NAME=mina-staking-ledgers
 # No credentials needed for public buckets!
 ```
 
 **Stay with AWS:**
-```bash  
+```bash
 STORAGE_PROVIDER=aws
 AWS_REGION=us-west-2
 BUCKET_NAME=673156464838-mina-staking-ledgers
@@ -603,13 +603,13 @@ BUCKET_NAME=673156464838-mina-staking-ledgers
 
 ### 📊 Performance Verified:
 - **Bucket Listing**: 4,250 objects in ~3 seconds
-- **Hash Matching**: 25 exact matches found instantly  
+- **Hash Matching**: 25 exact matches found instantly
 - **Download Speed**: Comparable to AWS S3
 - **Memory Efficient**: Smart pagination prevents memory issues
 
 ### 🛡️ Production Ready Features:
 - ✅ Comprehensive error handling and logging
-- ✅ Graceful fallback mechanisms  
+- ✅ Graceful fallback mechanisms
 - ✅ Enhanced debugging capabilities
 - ✅ No credential requirements for public buckets
 - ✅ Full test coverage with real-world scenarios

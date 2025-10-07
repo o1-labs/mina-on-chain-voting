@@ -36,6 +36,7 @@ impl Ocv {
     }
 
     let transactions = self.archive.fetch_transactions(proposal.start_time, proposal.end_time)?;
+    tracing::info!("Fetched {} transactions for proposal {}", transactions.len(), id);
 
     let chain_tip = self.archive.fetch_chain_tip()?;
 

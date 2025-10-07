@@ -58,6 +58,10 @@
             "type": "string",
             "enum": ["devnet", "mainnet"],
             "description": "Network on which the proposal is valid"
+          },
+          "is_complete": {
+            "type": "boolean",
+            "description": "Indicates if the proposal is complete (review finished)"
           }
         },
         "required": [
@@ -71,7 +75,8 @@
           "title",
           "description",
           "url",
-          "network"
+          "network",
+          "is_complete"
         ]
       }
     }
