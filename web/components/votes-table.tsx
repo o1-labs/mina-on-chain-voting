@@ -65,8 +65,12 @@ export const votesTableVotingStatuses = [
   {
     value: 'Invalid',
     icon: Cross2Icon,
-  }
-]
+  },
+  {
+    value: 'Pending',
+    icon: CountdownTimerIcon,
+  },
+];
 
 const columns: ColumnDef<Props['votes'][number]>[] = [
   {
@@ -138,7 +142,6 @@ const columns: ColumnDef<Props['votes'][number]>[] = [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Vote" />,
     cell: ({ row }) => {
       const vote = votesTableDirections.find((direction) => direction.value === row.getValue('direction'));
-
       if (!vote) {
         return null;
       }
@@ -197,8 +200,15 @@ const columns: ColumnDef<Props['votes'][number]>[] = [
     cell: ({ row }) => {
       const weight = parseFloat(row.getValue('weight'));
       const isValid = weight !== 0;
-
-      if (!isValid) {
+      const isPending = row.original.proposal_ledger_hash === '';
+      if (isPending) {
+        return (
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-900/50 rounded-md">
+            <div className="w-2 h-2 bg-yellow-500 dark:bg-yellow-400 rounded-full animate-pulse" />
+            <span className="text-xs font-semibold text-yellow-700 dark:text-yellow-400">Pending</span>
+          </div>
+        );
+      } else if (!isValid) {
         return (
           <HoverCard openDelay={200} closeDelay={100}>
             <HoverCardTrigger>
@@ -228,9 +238,12 @@ const columns: ColumnDef<Props['votes'][number]>[] = [
     filterFn: (row, id, value) => {
       const weight = parseFloat(row.getValue(id));
       const isValid = weight !== 0;
-      if (value.includes('Valid') && isValid) {
+      const isPending = row.original.proposal_ledger_hash === '';
+      if (value.includes('Pending') && isPending) {
         return true;
-      } else if (value.includes('Invalid') && !isValid) {
+      } else if (value.includes('Valid') && isValid && !isPending) {
+        return true;
+      } else if (value.includes('Invalid') && !isValid && !isPending) {
         return true;
       }
       return false;

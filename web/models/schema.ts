@@ -23,6 +23,7 @@ export const VoteSchema = z.object({
   status: VoteStatusSchema,
   timestamp: z.number(),
   nonce: z.number(),
+  proposal_ledger_hash: z.string().optional().nullable(),
 });
 
 export const VoteWithWeightSchema = VoteSchema.and(

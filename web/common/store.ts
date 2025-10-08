@@ -36,7 +36,7 @@ export const getProposal = async (id: number | string) => {
 
   return {
     ...processedProposal,
-    votes: processedVotes.votes,
+    votes: addProposalLedgerHashToVotes(processedProposal, processedVotes.votes),
     metrics: processedVotes.metrics,
   };
 };
@@ -51,7 +51,7 @@ export const getProposalResults = async (id: number | string) => {
 
   return {
     ...processedProposal,
-    votes: processedVotes.votes,
+    votes: addProposalLedgerHashToVotes(processedProposal, processedVotes.votes),
     metrics: processedVotes.metrics,
   };
 };
@@ -70,7 +70,7 @@ export type GetProposalListResult = Awaited<ReturnType<typeof getProposalList>>;
 // Function should be ported to the backend if needed, for consistency.
 // i.e. expanding our backend models.
 const processVotes = <T extends ProposalParserOutcome['votes'][number]>(
-  votes: Array<T>
+  votes: Array<T>,
 ): {
   votes: Array<T & { direction: VoteDirection }>;
   metrics: Array<VoteMetrics>;
@@ -104,7 +104,7 @@ const processVotes = <T extends ProposalParserOutcome['votes'][number]>(
 // Function should be ported to the backend if needed, for consistency.
 // i.e. expanding our backend models.
 const processProposal = <T extends ProposalListParserOutcome[number]>(
-  proposal: T
+  proposal: T,
 ): T & {
   status: ProposalStatus;
 } => {
@@ -129,4 +129,13 @@ const processProposal = <T extends ProposalListParserOutcome[number]>(
       ? 'Completed'
       : 'Unknown',
   };
+};
+
+const addProposalLedgerHashToVotes = <T extends ProposalParserOutcome>(
+  proposal: T, votes: Array<ProposalParserOutcome['votes'][number]>,
+): Array<ProposalParserOutcome['votes'][number]> => {
+  return votes.map((vote) => ({
+    ...vote,
+    proposal_ledger_hash: proposal.ledger_hash,
+  }));
 };
