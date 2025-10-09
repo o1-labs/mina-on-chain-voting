@@ -8,7 +8,7 @@ export const siteConfig = {
     },
   ],
   links: {
-    github: 'https://github.com/MinaFoundation/mina-on-chain-voting',
+    github: 'https://github.com/o1-labs/mina-on-chain-voting',
     granola: 'https://granola.team',
     minaFoundation: 'https://www.minafoundation.com',
     FAQ: 'https://forums.minaprotocol.com/t/on-chain-voting-frequently-asked-questions-faq/5959',

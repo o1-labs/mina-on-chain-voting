@@ -10,6 +10,8 @@ Find an issue or a bug? Have a question or suggestion? We’d love to get your [
 
 # Table of Contents
 - [How to add a new MIP](#how-to-add-a-new-mip)
+- [Maintaining the lifecycle of a MIP in the OCV](#maintaining-the-lifecycle-of-a-mip-in-the-ocv)
+  - [Steps to follow](#steps-to-follow)
 - [Calculation of Mina’s On-Chain Voting Results](#calculation-of-minas-on-chain-voting-results)
   - [Overview](#overview)
   - [Calculating the results](#calculating-the-results-using-mip3mip4-as-examples)
@@ -36,9 +38,30 @@ To add a new MIP, please follow the following steps:
    - the `url` should be a link to the MIP's proposal on the [Mina Protocol MIPs repository](https://github.com/MinaProtocol/MIPs/tree/main/MIPS)
    - the network should be `mainnet` or `devnet`
    - the `ledger_hash` must be the ledger hash of the epoch after the voting epoch (e.g. for voting in epoch 53, use the ledger hash of epoch 55). Check how to [obtain the staking ledger](#obtain-staking-ledger) section for more details
+   - the `is_complete` field has to be set to `false` when adding a new MIP
 4. Once you have added the new entry, scroll down to the bottom of the page and click on the "Propose changes" button
 5. In the next page, add a descriptive title and description for your changes, then click on the "Create pull request" button
 6. Once the pull request is reviewed and approved, it will be merged into the main branch and the new MIP will be added to the [OCV dashboard](https://ocv.minaprotocol.com/)
+
+## Maintaining the lifecycle of a MIP in the OCV
+
+This section describes the actions needed to be taken during the lifecycle of a MIP and how the statuses are updated in the [OCV dashboard](https://ocv.minaprotocol.com/).
+
+| Step | Status          | Description |
+|------|-----------------|-------------|
+| 1 | **Pending**     | MIP is added to repo |
+| 2 | **In Progress** | Voting period active |
+| 3 | **In Review**   | Voting ended, verifying results |
+| 4 | **Complete**    | Results verified and published |
+
+### Steps to follow
+
+1. A MIP has reached finalization stage and is ready for on chain voting, so it is added to
+   the [MIP list file in the OCV repo](#how-to-add-a-new-mip)
+2. After the voting period has started, the MIP status will change to "In Progress"
+3. Once the voting period has ended, the MIP status will change to "In Review". At this point the results are being verified.
+4. The voting results will be verified and calculated using the steps described in the [Calculation of Mina’s On-Chain Voting Results](#calculation-of-minas-on-chain-voting-results) section
+5. Once the results have been verified, a new pull request will be created to update the MIP `is_complete` field to `true`. At this point, the MIP status will change to "Complete" and the results will be displayed on the Dashboard.
 
 ## Calculation of Mina’s On-Chain Voting Results
 We will describe in detail how to calculate the results of Mina’s on-chain stake-weighted voting!

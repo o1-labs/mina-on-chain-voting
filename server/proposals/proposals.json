@@ -616,6 +616,21 @@
       "version": "V2",
       "network": "mainnet",
       "is_complete": false
+    },
+    {
+      "id": 42,
+      "key": "MIP89",
+      "category": "Core",
+      "title": "Demo MIP for Mesa Upgrade - Testing Purposes Only - 3",
+      "description": "From Thursday, October 14 - 00:00 GMT, 2025 to Wednesday - 00:00 GMT, October 15, 2025",
+      "start_time": 1760400000000,
+      "end_time": 1760486400000,
+      "epoch": 33,
+      "ledger_hash": "jxAxNh9C2JoitepV5djDDyunkU6pU7Wd1YXECbRwHd2VxXDS2ZV",
+      "url": "",
+      "version": "V2",
+      "network": "mainnet",
+      "is_complete": false
     }
   ]
 }

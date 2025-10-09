@@ -31,7 +31,7 @@ export const VotesMetrics = ({ variant, proposal }: Props) => {
         total={proposal.votes.length}
       />
 
-      {variant === 'results' && proposal.status === 'Completed' ? (
+      {variant === 'results' && ['In Review', 'Completed'].includes(proposal.status) ? (
         <VotesMetricsTotalStake
           className="row-start-4 md:row-start-3 xl:row-start-1 xl:col-start-5"
           total={proposal.total_stake_weight}
@@ -43,7 +43,7 @@ export const VotesMetrics = ({ variant, proposal }: Props) => {
         />
       )}
 
-      {variant === 'results' && proposal.status === 'Completed' ? (
+      {variant === 'results' && ['In Review', 'Completed'].includes(proposal.status) ? (
         <VotesMetricsResults
           className="col-span-2 md:row-start-3 xl:row-start-2 xl:col-start-4"
           total={proposal.total_stake_weight}

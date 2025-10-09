@@ -4,6 +4,8 @@ import * as React from 'react';
 
 import { useRouter } from 'next/navigation';
 
+import { GetProposalResult, GetProposalResultsResult } from 'common/store';
+
 import { DataTablePagination } from 'components/core/data-table-pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from 'components/core/table';
 
