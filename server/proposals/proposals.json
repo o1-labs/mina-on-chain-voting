@@ -630,7 +630,7 @@
       "url": "",
       "version": "V2",
       "network": "mainnet",
-      "is_complete": false
+      "is_complete": true
     }
   ]
 }
