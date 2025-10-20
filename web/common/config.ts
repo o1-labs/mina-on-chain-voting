@@ -11,6 +11,7 @@ export const siteConfig = {
     github: 'https://github.com/o1-labs/mina-on-chain-voting',
     granola: 'https://granola.team',
     minaFoundation: 'https://www.minafoundation.com',
+    o1labs: 'https://o1labs.org',
     FAQ: 'https://forums.minaprotocol.com/t/on-chain-voting-frequently-asked-questions-faq/5959',
   },
 };

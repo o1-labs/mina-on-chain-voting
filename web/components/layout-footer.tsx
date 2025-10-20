@@ -57,6 +57,15 @@ export const Footer = () => {
           >
             Granola
           </a>
+          , maintained by{' '}
+          <a
+            href={siteConfig.links.o1labs}
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium underline underline-offset-4 text-logoOrange"
+          >
+            o1Labs
+          </a>
         </div>
       </div>
     </footer>
