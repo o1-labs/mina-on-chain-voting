@@ -586,6 +586,66 @@
       "version": "V2",
       "network": "devnet",
       "is_complete": false
+    },
+    {
+      "id": 41,
+      "key": "MIP6",
+      "category": "Core",
+      "title": "Reduce slot time to 90s",
+      "description": "This proposal seeks to cut Mina's slot duration in half from 180 to 90 seconds, enabling twice as many blocks and proportionally increasing network throughput.",
+      "start_time": 1765152000000,
+      "end_time": 1765843199000,
+      "epoch": 37,
+      "ledger_hash": "",
+      "url": "https://github.com/MinaProtocol/MIPs/blob/main/MIPS/mip-0006-slot-reduction-90s.md",
+      "version": "V2",
+      "network": "mainnet",
+      "is_complete": false
+    },
+    {
+      "id": 42,
+      "key": "MIP7",
+      "category": "Core",
+      "title": "Increase On-Chain State Size Limit",
+      "description": "This proposal aims to expand the maximum on-chain state capacity for zkApp accounts from 8 field elements to 32 field elements.",
+      "start_time": 1765152000000,
+      "end_time": 1765843199000,
+      "epoch": 37,
+      "ledger_hash": "",
+      "url": "https://github.com/MinaProtocol/MIPs/blob/main/MIPS/mip-0007-increase-state-size-limit.md",
+      "version": "V2",
+      "network": "mainnet",
+      "is_complete": false
+    },
+    {
+      "id": 43,
+      "key": "MIP8",
+      "category": "Core",
+      "title": "Increase Events & Actions Limit",
+      "description": "This proposal seeks to enhance zkApp capabilities by raising the permitted field elements for events and actions from 100 to 1024 per transaction.",
+      "start_time": 1765152000000,
+      "end_time": 1765843199000,
+      "epoch": 37,
+      "ledger_hash": "",
+      "url": "https://github.com/MinaProtocol/MIPs/blob/main/MIPS/mip-0008-increase-events-actions-limit.md",
+      "version": "V2",
+      "network": "mainnet",
+      "is_complete": false
+    },
+    {
+      "id": 44,
+      "key": "MIP9",
+      "category": "Core",
+      "title": "Increase zkApp Account Update Limit",
+      "description": "This proposal would expand the constraints on account updates within Mina Protocol zkApp transactions, roughly tripling existing limits while maintaining protocol performance.",
+      "start_time": 1765152000000,
+      "end_time": 1765843199000,
+      "epoch": 37,
+      "ledger_hash": "",
+      "url": "https://github.com/MinaProtocol/MIPs/blob/main/MIPS/mip-0009-increase-zkapp-account-update-limit.md",
+      "version": "V2",
+      "network": "mainnet",
+      "is_complete": false
     }
   ]
 }
