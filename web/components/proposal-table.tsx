@@ -152,7 +152,7 @@ const columns: ColumnDef<ProposalListParserOutcome[number]>[] = [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Voting Start" />,
     cell: ({ row }) => {
       const startDate = moment(new Date(row.getValue('start_time'))).utc();
-      return <span className="whitespace-nowrap">{startDate.format('YYYY-MM-DD - hh:mm').toString()}</span>;
+      return <span className="whitespace-nowrap">{startDate.format('YYYY-MM-DD - HH:mm').toString()}</span>;
     },
     enableHiding: false,
     enableSorting: false,
@@ -162,7 +162,7 @@ const columns: ColumnDef<ProposalListParserOutcome[number]>[] = [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Voting End" />,
     cell: ({ row }) => {
       const endDate = moment(new Date(row.getValue('end_time'))).utc();
-      return <span className="whitespace-nowrap">{endDate.format('YYYY-MM-DD - hh:mm').toString()}</span>;
+      return <span className="whitespace-nowrap">{endDate.format('YYYY-MM-DD - HH:mm').toString()}</span>;
     },
     enableHiding: false,
     enableSorting: false,
