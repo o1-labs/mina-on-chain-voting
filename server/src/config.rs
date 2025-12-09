@@ -6,7 +6,7 @@ use clap::{Args, Parser, ValueEnum};
 use derive_more::Display;
 use serde::{Deserialize, Serialize};
 
-use crate::{Archive, Caches, Ocv, Proposal, ProposalsManifest, storage::create_storage_provider};
+use crate::{Archive, Ocv, Proposal, ProposalsManifest, storage::create_storage_provider};
 
 #[derive(Clone, Args)]
 pub struct OcvConfig {
@@ -47,7 +47,6 @@ impl OcvConfig {
     fs::create_dir_all(&self.ledger_storage_path)?;
     let storage_provider = create_storage_provider(self).await?;
     Ok(Ocv {
-      caches: Caches::build(),
       archive: Archive::new(&self.archive_database_url),
       network: self.network,
       release_stage: self.release_stage,
