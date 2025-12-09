@@ -5,6 +5,8 @@ import { Separator } from 'components/core/separator';
 import { VotesMetrics } from 'components/votes-metrics';
 import { VotesTable } from 'components/votes-table';
 
+export const dynamic = 'force-dynamic';
+
 interface PageParams {
   id: string;
 }
