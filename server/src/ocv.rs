@@ -6,12 +6,11 @@ use serde::Serialize;
 
 use crate::{
   Archive, ElectionResult, ElectionStats, Ledger, Network, Proposal, RankedVote, ReleaseStage, Vote, VoteRules,
-  VoteWithWeight, Wrapper, ranked_vote::run_simple_election, storage::StorageProvider, util::Caches,
+  VoteWithWeight, Wrapper, ranked_vote::run_simple_election, storage::StorageProvider,
 };
 
 #[derive(Clone)]
 pub struct Ocv {
-  pub caches: Caches,
   pub archive: Archive,
   pub network: Network,
   pub release_stage: ReleaseStage,
@@ -31,10 +30,6 @@ impl Ocv {
   pub async fn proposal(&self, id: usize) -> Result<ProposalResponse> {
     let proposal = self.find_proposal(id)?;
 
-    if let Some(cached) = self.caches.votes.get(&proposal.key).await {
-      return Ok(ProposalResponse { proposal, votes: cached.to_vec() });
-    }
-
     let transactions = self.archive.fetch_transactions(proposal.start_time, proposal.end_time)?;
     tracing::info!("Fetched {} transactions for proposal {}", transactions.len(), id);
 
@@ -45,8 +40,6 @@ impl Ocv {
       .sort_by_timestamp()
       .to_vec()
       .0;
-
-    self.caches.votes.insert(proposal.key.clone(), Arc::new(votes.clone())).await;
 
     Ok(ProposalResponse { proposal, votes })
   }
@@ -90,24 +83,16 @@ impl Ocv {
     end_time: i64,
     ledger_hash: Option<String>,
   ) -> Result<GetMinaProposalConsiderationResponse> {
-    let key = format!("MEF_round_{}_proposal_{}_start_{}_end_{}", round_id, proposal_id, start_time, end_time);
+    let transactions = self.archive.fetch_transactions(start_time, end_time)?;
 
-    let votes = if let Some(cached_votes) = self.caches.votes.get(&key).await {
-      cached_votes.to_vec()
-    } else {
-      let transactions = self.archive.fetch_transactions(start_time, end_time)?;
+    let chain_tip = self.archive.fetch_chain_tip()?;
+    let votes = Wrapper(transactions.into_iter().map(std::convert::Into::into).collect())
+      .process_mep(round_id, proposal_id, chain_tip)
+      .sort_by_timestamp()
+      .to_vec()
+      .0;
 
-      let chain_tip = self.archive.fetch_chain_tip()?;
-      let votes = Wrapper(transactions.into_iter().map(std::convert::Into::into).collect())
-        .process_mep(round_id, proposal_id, chain_tip)
-        .sort_by_timestamp()
-        .to_vec()
-        .0;
-
-      self.caches.votes.insert(key.clone(), Arc::new(votes.clone())).await;
-      tracing::info!("votes {}", votes.len());
-      votes
-    };
+    tracing::info!("votes {}", votes.len());
     // weighted votes
     let mut positive_stake_weight = Decimal::from(0);
     let mut negative_stake_weight = Decimal::from(0);
@@ -142,32 +127,17 @@ impl Ocv {
 
     // Calculate weighted votes if ledger_hash params is provided
     if let Some(hash) = ledger_hash {
-      let votes_weighted = if let Some(cached_votes) = self.caches.votes_weighted.get(&key).await {
-        cached_votes.to_vec()
-      } else {
-        let transactions = self.archive.fetch_transactions(start_time, end_time)?;
+      let transactions = self.archive.fetch_transactions(start_time, end_time)?;
 
-        let chain_tip = self.archive.fetch_chain_tip()?;
+      let chain_tip = self.archive.fetch_chain_tip()?;
 
-        let ledger = if let Some(cached_ledger) = self.caches.ledger.get(&hash).await {
-          Ledger(cached_ledger.to_vec())
-        } else {
-          let ledger = Ledger::fetch(self, &hash).await?;
+      let ledger = Ledger::fetch(self, &hash).await?;
 
-          self.caches.ledger.insert(hash, Arc::new(ledger.0.clone())).await;
+      let votes_weighted = Wrapper(transactions.into_iter().map(std::convert::Into::into).collect())
+        .into_weighted_mep(round_id, proposal_id, &ledger, chain_tip)
+        .sort_by_timestamp()
+        .0;
 
-          ledger
-        };
-
-        let votes = Wrapper(transactions.into_iter().map(std::convert::Into::into).collect())
-          .into_weighted_mep(round_id, proposal_id, &ledger, chain_tip)
-          .sort_by_timestamp()
-          .0;
-
-        self.caches.votes_weighted.insert(key.clone(), Arc::new(votes.clone())).await;
-
-        votes
-      };
       for vote in &votes_weighted {
         if vote.memo.to_lowercase() == format!("mef {} no {}", round_id, proposal_id) {
           negative_stake_weight += vote.weight;
@@ -214,32 +184,16 @@ impl Ocv {
       Some(value) => value,
     };
 
-    let votes = if let Some(cached_votes) = self.caches.votes_weighted.get(&proposal.key).await {
-      cached_votes.to_vec()
-    } else {
-      let transactions = self.archive.fetch_transactions(proposal.start_time, proposal.end_time)?;
+    let transactions = self.archive.fetch_transactions(proposal.start_time, proposal.end_time)?;
 
-      let chain_tip = self.archive.fetch_chain_tip()?;
+    let chain_tip = self.archive.fetch_chain_tip()?;
 
-      let ledger = if let Some(cached_ledger) = self.caches.ledger.get(&hash).await {
-        Ledger(cached_ledger.to_vec())
-      } else {
-        let ledger = Ledger::fetch(self, &hash).await?;
+    let ledger = Ledger::fetch(self, &hash).await?;
 
-        self.caches.ledger.insert(hash, Arc::new(ledger.0.clone())).await;
-
-        ledger
-      };
-
-      let votes = Wrapper(transactions.into_iter().map(std::convert::Into::into).collect())
-        .into_weighted(&proposal, &ledger, chain_tip)
-        .sort_by_timestamp()
-        .0;
-
-      self.caches.votes_weighted.insert(proposal.key.clone(), Arc::new(votes.clone())).await;
-
-      votes
-    };
+    let votes = Wrapper(transactions.into_iter().map(std::convert::Into::into).collect())
+      .into_weighted(&proposal, &ledger, chain_tip)
+      .sort_by_timestamp()
+      .0;
 
     let mut positive_stake_weight = Decimal::from(0);
     let mut negative_stake_weight = Decimal::from(0);
@@ -270,19 +224,12 @@ impl Ocv {
   ) -> Result<GetMinaRankedVoteResponse> {
     let transactions = self.archive.fetch_transactions(start_time, end_time)?;
     let chain_tip = self.archive.fetch_chain_tip()?;
-    let key = format!("MEF_round_{}_start_{}_end_{}", round_id, start_time, end_time);
 
-    let votes = if let Some(cached_votes) = self.caches.ranked_votes.get(&key).await {
-      cached_votes.to_vec()
-    } else {
-      let votes = Wrapper(transactions.into_iter().map(std::convert::Into::into).collect())
-        .process_ranked_vote(round_id, chain_tip)
-        .to_vec()
-        .0;
-      self.caches.ranked_votes.insert(key.clone(), Arc::new(votes.clone())).await;
-      tracing::info!("votes {}", votes.len());
-      votes
-    };
+    let votes = Wrapper(transactions.into_iter().map(std::convert::Into::into).collect())
+      .process_ranked_vote(round_id, chain_tip)
+      .to_vec()
+      .0;
+    tracing::info!("votes {}", votes.len());
     tracing::info!("run_ranked_vote {} {} {} {}", round_id, start_time, end_time, votes.len());
 
     let ranked_votes = votes; // Unwrap the wrapper to access the HashMap
