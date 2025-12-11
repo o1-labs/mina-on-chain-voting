@@ -10,7 +10,11 @@ export const safeFetch = async (
   responseType: 'json' | 'text' = 'json'
 ) => {
   const url = new URL(process.env.NEXT_PUBLIC_API_BASE_URL + endpoint);
-  const response = await fetch(url, { ...requestOptions });
+  const response = await fetch(url, {
+    ...requestOptions,
+    cache: 'no-store',
+    next: { revalidate: 0 }
+  });
 
   if (!response.ok) {
     console.log('---------------------------');
