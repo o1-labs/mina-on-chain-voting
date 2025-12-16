@@ -600,7 +600,7 @@
       "url": "https://github.com/MinaProtocol/MIPs/blob/main/MIPS/mip-0006-slot-reduction-90s.md",
       "version": "V2",
       "network": "mainnet",
-      "is_complete": false
+      "is_complete": true
     },
     {
       "id": 42,
@@ -615,7 +615,7 @@
       "url": "https://github.com/MinaProtocol/MIPs/blob/main/MIPS/mip-0007-increase-state-size-limit.md",
       "version": "V2",
       "network": "mainnet",
-      "is_complete": false
+      "is_complete": true
     },
     {
       "id": 43,
@@ -630,7 +630,7 @@
       "url": "https://github.com/MinaProtocol/MIPs/blob/main/MIPS/mip-0008-increase-events-actions-limit.md",
       "version": "V2",
       "network": "mainnet",
-      "is_complete": false
+      "is_complete": true
     },
     {
       "id": 44,
@@ -645,7 +645,7 @@
       "url": "https://github.com/MinaProtocol/MIPs/blob/main/MIPS/mip-0009-increase-zkapp-account-update-limit.md",
       "version": "V2",
       "network": "mainnet",
-      "is_complete": false
+      "is_complete": true
     }
   ]
 }
