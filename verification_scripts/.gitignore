@@ -1,0 +1,19 @@
+# Ledger files (large JSON files)
+ledger*.json
+*.json
+
+# Temporary export files
+voters_*.txt
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Database credentials (if stored in files)
+.env
+*.conf
+
+# Temporary debug scripts
+check_*.py
+debug_*.py
